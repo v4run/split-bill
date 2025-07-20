@@ -113,6 +113,7 @@
 
     <script type="module">
         // --- STATE ---
+        let lastLoadedRawJson = null;
         let originalBillData = null;
         let flatBillItems = [];
         let users = [];
@@ -148,38 +149,24 @@
 
         // --- DATA HANDLING ---
         function initializeBill() {
-            const defaultBill = { items: [], subtotal: 0, grand_total: 0 };
-            processRawBill(defaultBill);
+            lastLoadedRawJson = { items: [], subtotal: 0, grand_total: 0 };
+            processRawBill(lastLoadedRawJson);
         }
 
         function processRawBill(rawJson) {
             try {
                 originalBillData = {
-                    items: (rawJson.items || []).map(item => ({
+                    items: (rawJson.items || []).map((item, index) => ({
                         name: item.item_name,
                         quantity: item.quantity,
-                        price: item.unit_price
+                        price: item.unit_price,
+                        originalIndex: index, // Keep track of original position
+                        splitIndividually: true // Default to splitting individually
                     })),
                     discount: (rawJson.subtotal && rawJson.grand_total) ? (rawJson.subtotal - rawJson.grand_total) : 0,
                     total: rawJson.grand_total || 0
                 };
-
-                flatBillItems = [];
-                originalBillData.items.forEach(item => {
-                    for (let i = 0; i < item.quantity; i++) {
-                        flatBillItems.push({
-                            ...item,
-                            quantity: 1,
-                            originalQuantity: item.quantity,
-                            quantityIndex: i + 1
-                        });
-                    }
-                });
-
-                itemAssignments = {};
-                flatBillItems.forEach((_, index) => {
-                    itemAssignments[index] = [];
-                });
+                rebuildFlatItems();
             } catch (error) {
                 console.error("Failed to process bill data:", error);
                 showError("Could not process the provided bill data. Check the format.");
@@ -188,11 +175,38 @@
             }
         }
 
+        function rebuildFlatItems() {
+            flatBillItems = [];
+            itemAssignments = {};
+            originalBillData.items.forEach(originalItem => {
+                if (originalItem.splitIndividually && originalItem.quantity > 1) {
+                    for (let i = 0; i < originalItem.quantity; i++) {
+                        flatBillItems.push({
+                            ...originalItem,
+                            quantity: 1,
+                            originalQuantity: originalItem.quantity,
+                            quantityIndex: i + 1
+                        });
+                    }
+                } else {
+                     flatBillItems.push({
+                        ...originalItem,
+                        originalQuantity: originalItem.quantity,
+                        quantityIndex: 1
+                    });
+                }
+            });
+            // Initialize assignments for the new flat list
+            flatBillItems.forEach((_, index) => {
+                itemAssignments[index] = [];
+            });
+        }
+
         function loadUsersFromStorage() {
             const storedUsers = localStorage.getItem('billSplitterUsers');
             if (storedUsers) {
                 users = JSON.parse(storedUsers);
-                participatingUserIds = users.map(u => u.id); // By default, all users participate
+                participatingUserIds = users.map(u => u.id);
             }
         }
 
@@ -207,7 +221,7 @@
                 name: name.trim()
             };
             users.push(newUser);
-            participatingUserIds.push(newUser.id); // New users participate by default
+            participatingUserIds.push(newUser.id);
             saveUsersToStorage();
             renderAll();
         }
@@ -259,17 +273,41 @@
             }
 
             billItemsList.innerHTML = flatBillItems.map((item, index) => {
-                const displayName = item.originalQuantity > 1
-                    ? `${item.name} (${item.quantityIndex} of ${item.originalQuantity})`
-                    : item.name;
+                const originalItem = originalBillData.items[item.originalIndex];
+                let displayName;
+                let displayPrice;
+                let toggleHTML = '';
+
+                // Conditionally render the toggle switch ONLY on the first item of a multi-quantity group.
+                if (item.originalQuantity > 1 && item.quantityIndex === 1) {
+                    toggleHTML = `
+                        <div class="flex items-center space-x-2 mt-3">
+                            <span class="text-xs font-medium text-gray-600">Split Individually</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" data-original-index="${item.originalIndex}" class="sr-only peer item-split-toggle" ${originalItem.splitIndividually ? 'checked' : ''}>
+                                <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:bg-green-600"></div>
+                                <span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-full"></span>
+                            </label>
+                        </div>
+                    `;
+                }
+
+                if (originalItem.splitIndividually && item.originalQuantity > 1) {
+                    displayName = `${item.name} (${item.quantityIndex} of ${item.originalQuantity})`;
+                    displayPrice = `1 x ₹${item.price.toFixed(2)} = ₹${item.price.toFixed(2)}`;
+                } else {
+                    displayName = item.name;
+                    displayPrice = `${item.quantity} x ₹${item.price.toFixed(2)} = ₹${(item.quantity * item.price).toFixed(2)}`;
+                }
 
                 return `
                 <div class="border p-4 rounded-lg bg-gray-50">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="font-bold text-lg">${displayName}</p>
-                            <p class="text-sm text-gray-600">1 x ₹${item.price.toFixed(2)} = ₹${item.price.toFixed(2)}</p>
+                            <p class="text-sm text-gray-600">${displayPrice}</p>
                         </div>
+                        ${toggleHTML}
                     </div>
                     <div class="mt-3 pt-3 border-t">
                         <p class="text-sm font-medium mb-2 text-gray-700">Split this item with:</p>
@@ -282,6 +320,9 @@
 
             document.querySelectorAll('.user-checkbox-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.addEventListener('change', handleAssignmentChange);
+            });
+            document.querySelectorAll('.item-split-toggle').forEach(toggle => {
+                toggle.addEventListener('change', handleItemSplitToggle);
             });
         }
 
@@ -426,8 +467,8 @@
                     return;
                 }
                 try {
-                    const rawJson = JSON.parse(jsonString);
-                    processRawBill(rawJson);
+                    lastLoadedRawJson = JSON.parse(jsonString);
+                    processRawBill(lastLoadedRawJson);
                     renderAll();
                     billModal.classList.add('hidden');
                     billJsonInput.value = '';
@@ -437,6 +478,14 @@
                     console.error("JSON Parse Error:", error);
                 }
             });
+        }
+
+        function handleItemSplitToggle(e) {
+            const originalIndex = parseInt(e.target.dataset.originalIndex, 10);
+            const isChecked = e.target.checked;
+            originalBillData.items[originalIndex].splitIndividually = isChecked;
+            rebuildFlatItems();
+            renderAll();
         }
 
         function handleParticipantChange(e) {
