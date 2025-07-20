@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Bill Splitter</h1>
+            <p class="text-gray-600 mt-2">Split bills easily with friends.</p>
+        </header>
+
+        <!-- Error Message Display -->
+        <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span id="error-message" class="block sm:inline"></span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Left Column: Bill & Users -->
+            <div class="md:col-span-2 space-y-6">
+                <!-- Bill Items -->
+                <div id="bill-container" class="bg-white p-6 rounded-2xl shadow-md animate-fade-in">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Bill Details</h2>
+                    <div id="bill-items-list" class="space-y-4">
+                        <!-- Items will be dynamically inserted here -->
+                    </div>
+                    <div id="bill-summary" class="mt-6 pt-4 border-t-2 border-dashed">
+                         <!-- Summary will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                 <!-- Users Section -->
+                <div class="bg-white p-6 rounded-2xl shadow-md animate-fade-in">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold">Users</h2>
+                        <button id="add-user-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                            Add User
+                        </button>
+                    </div>
+                    <div id="users-list" class="flex flex-wrap gap-3">
+                        <!-- Users will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Final Split -->
+            <div class="md:col-span-1">
+                <div id="split-container" class="bg-white p-6 rounded-2xl shadow-md sticky top-8 animate-fade-in">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Final Split</h2>
+                    <div id="split-results" class="space-y-3">
+                        <p class="text-gray-500">Assign items to users to see the split.</p>
+                        <!-- Split details will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm animate-fade-in">
+            <h3 class="text-2xl font-semibold mb-4">Add a New User</h3>
+            <input type="text" id="new-user-name" class="w-full border-gray-300 rounded-lg p-3 text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter name...">
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-user-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
+                <button id="save-user-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- STATE ---
+        let billData = null;
+        let users = [];
+        let itemAssignments = {}; // { itemIndex: [userId1, userId2], ... }
+
+        // --- DOM ELEMENTS ---
+        const errorContainer = document.getElementById('error-container');
+        const errorMessageEl = document.getElementById('error-message');
+        const billItemsList = document.getElementById('bill-items-list');
+        const billSummaryEl = document.getElementById('bill-summary');
+        const usersList = document.getElementById('users-list');
+        const splitResults = document.getElementById('split-results');
+        const addUserBtn = document.getElementById('add-user-btn');
+        const userModal = document.getElementById('user-modal');
+        const newUserNameInput = document.getElementById('new-user-name');
+        const saveUserBtn = document.getElementById('save-user-btn');
+        const cancelUserBtn = document.getElementById('cancel-user-btn');
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            getBillFromUrl();
+            loadUsersFromStorage();
+            renderAll();
+            setupEventListeners();
+        });
+
+        // --- DATA HANDLING ---
+        function getBillFromUrl() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const billParam = urlParams.get('bill');
+
+                if (!billParam) {
+                    // If no bill data, use a default empty object without showing an error.
+                    billData = { items: [], discount: 0, total: 0 };
+                    return;
+                }
+
+                const decodedJson = atob(billParam);
+                billData = JSON.parse(decodedJson);
+
+                // Initialize assignments for each item
+                billData.items.forEach((_, index) => {
+                    itemAssignments[index] = [];
+                });
+
+            } catch (error) {
+                console.error("Failed to parse bill data:", error);
+                showError("Invalid bill data in URL. Make sure it's a valid Base64 encoded JSON.");
+                billData = { items: [], discount: 0, total: 0 }; // Fallback to empty bill on error
+            }
+        }
+
+        function loadUsersFromStorage() {
+            const storedUsers = localStorage.getItem('billSplitterUsers');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            }
+        }
+
+        function saveUsersToStorage() {
+            localStorage.setItem('billSplitterUsers', JSON.stringify(users));
+        }
+
+        function addUser(name) {
+            if (!name.trim()) return;
+            const newUser = {
+                id: crypto.randomUUID(),
+                name: name.trim()
+            };
+            users.push(newUser);
+            saveUsersToStorage();
+            renderAll();
+        }
+
+        function deleteUser(userIdToDelete) {
+            users = users.filter(user => user.id !== userIdToDelete);
+            saveUsersToStorage();
+
+            // Unassign this user from all items
+            Object.keys(itemAssignments).forEach(itemIndex => {
+                itemAssignments[itemIndex] = itemAssignments[itemIndex].filter(uid => uid !== userIdToDelete);
+            });
+
+            renderAll();
+        }
+
+
+        // --- RENDERING ---
+        function renderAll() {
+            if (!billData) return;
+            renderBillItems();
+            renderBillSummary();
+            renderUsers();
+            calculateAndRenderSplit();
+        }
+
+        function renderBillItems() {
+            if (!billData || !billData.items || billData.items.length === 0) {
+                billItemsList.innerHTML = '<p class="text-gray-500">No items in this bill. You can load a bill via a URL parameter.</p>';
+                return;
+            }
+
+            billItemsList.innerHTML = billData.items.map((item, index) => `
+                <div class="border p-4 rounded-lg bg-gray-50">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg">${item.name}</p>
+                            <p class="text-sm text-gray-600">${item.quantity} x ₹${item.price.toFixed(2)} = ₹${(item.quantity * item.price).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t">
+                        <p class="text-sm font-medium mb-2 text-gray-700">Split this item with:</p>
+                        <div class="flex flex-wrap gap-2 user-checkbox-container" data-item-index="${index}">
+                            ${renderUserCheckboxesForItem(index)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add event listeners after rendering
+            document.querySelectorAll('.user-checkbox-container input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', handleAssignmentChange);
+            });
+        }
+
+        function renderUserCheckboxesForItem(itemIndex) {
+            if (users.length === 0) {
+                return '<p class="text-xs text-gray-500">Add users to assign them.</p>';
+            }
+            return users.map(user => `
+                <label class="flex items-center space-x-2 cursor-pointer bg-white border rounded-full px-3 py-1 text-sm hover:bg-gray-100 transition-colors">
+                    <input type="checkbox" data-user-id="${user.id}" class="rounded text-blue-500 focus:ring-blue-500" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
+                    <span>${user.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function renderBillSummary() {
+            if (!billData) return;
+            const subtotal = billData.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            billSummaryEl.innerHTML = `
+                <div class="flex justify-between text-lg">
+                    <span class="font-medium">Subtotal</span>
+                    <span>₹${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between text-lg text-red-500">
+                    <span class="font-medium">Discount</span>
+                    <span>- ₹${billData.discount.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold mt-2 pt-2 border-t">
+                    <span>Total</span>
+                    <span>₹${billData.total.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        function renderUsers() {
+            usersList.innerHTML = users.length > 0 ? users.map(user => `
+                <div class="flex items-center gap-2 bg-gray-200 rounded-full px-3 py-1 text-sm font-medium">
+                    <span>${user.name}</span>
+                    <button data-user-id="${user.id}" class="delete-user-btn text-gray-500 hover:text-red-500">&times;</button>
+                </div>
+            `).join('') : '<p class="text-gray-500">No users added yet.</p>';
+
+            document.querySelectorAll('.delete-user-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const userIdToDelete = e.target.dataset.userId;
+                    deleteUser(userIdToDelete);
+                });
+            });
+        }
+
+        function calculateAndRenderSplit() {
+            if (users.length === 0 || !billData) {
+                splitResults.innerHTML = '<p class="text-gray-500">Add users and assign items to see the split.</p>';
+                return;
+            }
+
+            const userSubtotals = {};
+            users.forEach(user => userSubtotals[user.id] = 0);
+
+            billData.items.forEach((item, index) => {
+                const assignedUserIds = itemAssignments[index] || [];
+                if (assignedUserIds.length > 0) {
+                    const itemTotal = item.price * item.quantity;
+                    const costPerUser = itemTotal / assignedUserIds.length;
+                    assignedUserIds.forEach(uid => {
+                        userSubtotals[uid] += costPerUser;
+                    });
+                }
+            });
+
+            const totalSubtotal = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
+
+            if (totalSubtotal === 0) {
+                splitResults.innerHTML = '<p class="text-gray-500">No items have been assigned yet.</p>';
+                return;
+            }
+
+            const userTotals = {};
+            users.forEach(user => {
+                const userShareOfSubtotal = (totalSubtotal > 0) ? (userSubtotals[user.id] / totalSubtotal) : 0;
+                const userDiscount = billData.discount * userShareOfSubtotal;
+                userTotals[user.id] = userSubtotals[user.id] - userDiscount;
+            });
+
+            splitResults.innerHTML = users.map(user => {
+                const totalOwed = userTotals[user.id] || 0;
+                if (totalOwed <= 0) return ''; // Don't show users who owe nothing
+                return `
+                    <div class="flex justify-between items-center bg-blue-50 p-3 rounded-lg mb-2">
+                        <span class="font-medium text-blue-800">${user.name}</span>
+                        <span class="font-bold text-lg text-blue-900">₹${totalOwed.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const grandTotalCalculated = Object.values(userTotals).reduce((sum, val) => sum + val, 0);
+            splitResults.innerHTML += `
+                <div class="flex justify-between items-center border-t-2 border-dashed mt-4 pt-4">
+                    <span class="font-bold text-lg">Grand Total</span>
+                    <span class="font-bold text-xl">₹${grandTotalCalculated.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        // --- EVENT HANDLING ---
+        function setupEventListeners() {
+            addUserBtn.addEventListener('click', () => {
+                userModal.classList.remove('hidden');
+                newUserNameInput.focus();
+            });
+
+            cancelUserBtn.addEventListener('click', () => {
+                userModal.classList.add('hidden');
+                newUserNameInput.value = '';
+            });
+
+            saveUserBtn.addEventListener('click', () => {
+                addUser(newUserNameInput.value);
+                userModal.classList.add('hidden');
+                newUserNameInput.value = '';
+            });
+
+            newUserNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveUserBtn.click();
+                }
+            });
+        }
+
+        function handleAssignmentChange(e) {
+            const checkbox = e.target;
+            const userId = checkbox.dataset.userId;
+            const itemIndex = checkbox.closest('.user-checkbox-container').dataset.itemIndex;
+
+            const assignedUsers = itemAssignments[itemIndex] || [];
+            if (checkbox.checked) {
+                if (!assignedUsers.includes(userId)) {
+                    assignedUsers.push(userId);
+                }
+            } else {
+                itemAssignments[itemIndex] = assignedUsers.filter(uid => uid !== userId);
+            }
+            calculateAndRenderSplit();
+        }
+
+        // --- UTILITIES ---
+        function showError(message) {
+            errorMessageEl.textContent = message;
+            errorContainer.classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
+
