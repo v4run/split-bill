@@ -39,7 +39,6 @@
         .dark .brutalist-button {
              border-color: #f0f0f0;
              box-shadow: 4px 4px 0 #f0f0f0;
-             color: #f0f0f0;
         }
         .brutalist-button:active {
             box-shadow: 0 0 0 #000;
@@ -94,12 +93,12 @@
         }
     </style>
 </head>
-<body class="text-black">
+<body>
 
     <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-12 relative">
             <h1 class="text-5xl font-bold tracking-tighter">BILL SPLITTER</h1>
-            <button id="theme-toggle" class="absolute top-0 right-0 p-2 brutalist-button bg-yellow-300">
+            <button id="theme-toggle" class="absolute top-0 right-0 p-2 brutalist-button bg-yellow-300 text-black">
                 <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                 <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             </button>
@@ -125,7 +124,7 @@
                 <div id="bill-container" class="brutalist-card p-6 brutalist-border brutalist-shadow animate-fade-in">
                     <div class="flex justify-between items-center mb-4 border-b-2 border-black pb-2 dark:border-gray-200">
                         <h2 class="text-2xl font-bold">BILL DETAILS</h2>
-                        <button id="load-bill-btn" class="bg-green-400 hover:bg-green-500 text-black font-bold py-2 px-4 brutalist-button dark:text-black">
+                        <button id="load-bill-btn" class="bg-green-400 hover:bg-green-500 dark:bg-green-600 dark:hover:bg-green-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">
                             LOAD BILL
                         </button>
                     </div>
@@ -141,7 +140,7 @@
                 <div class="brutalist-card p-6 brutalist-border brutalist-shadow animate-fade-in">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-bold">MANAGE USERS</h2>
-                        <button id="add-user-btn" class="bg-blue-400 hover:bg-blue-500 text-black font-bold py-2 px-4 brutalist-button dark:text-black">
+                        <button id="add-user-btn" class="bg-blue-400 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">
                             ADD USER
                         </button>
                     </div>
@@ -170,8 +169,8 @@
             <h3 class="text-2xl font-bold mb-4">ADD NEW USER</h3>
             <input type="text" id="new-user-name" class="w-full p-3 text-lg brutalist-input" placeholder="Enter name...">
             <div class="mt-6 flex justify-end space-x-3">
-                <button id="cancel-user-btn" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 brutalist-button dark:text-black">CANCEL</button>
-                <button id="save-user-btn" class="bg-blue-400 hover:bg-blue-500 text-black font-bold py-2 px-4 brutalist-button dark:text-black">SAVE</button>
+                <button id="cancel-user-btn" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">CANCEL</button>
+                <button id="save-user-btn" class="bg-blue-400 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">SAVE</button>
             </div>
         </div>
     </div>
@@ -182,8 +181,8 @@
             <h3 class="text-2xl font-bold mb-4">PASTE BILL JSON</h3>
             <textarea id="bill-json-input" class="w-full h-64 p-3 text-sm brutalist-input" placeholder='Paste your bill JSON here...'></textarea>
             <div class="mt-6 flex justify-end space-x-3">
-                <button id="cancel-bill-btn" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 brutalist-button dark:text-black">CANCEL</button>
-                <button id="save-bill-btn" class="bg-green-400 hover:bg-green-500 text-black font-bold py-2 px-4 brutalist-button dark:text-black">LOAD</button>
+                <button id="cancel-bill-btn" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">CANCEL</button>
+                <button id="save-bill-btn" class="bg-green-400 hover:bg-green-500 dark:bg-green-600 dark:hover:bg-green-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">LOAD</button>
             </div>
         </div>
     </div>
@@ -360,7 +359,7 @@
 
             participantsList.innerHTML = users.map(user => `
                 <label class="flex items-center space-x-2 cursor-pointer brutalist-card brutalist-border px-4 py-2 hover:bg-yellow-300 dark:hover:text-black transition-colors">
-                    <input type="checkbox" data-user-id="${user.id}" class="participant-checkbox form-checkbox h-5 w-5 bg-transparent text-black border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
+                    <input type="checkbox" data-user-id="${user.id}" class="participant-checkbox form-checkbox h-5 w-5 bg-transparent text-black dark:text-yellow-300 border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
                     <span class="font-bold">${user.name}</span>
                 </label>
             `).join('');
@@ -435,7 +434,7 @@
             }
             return participatingUsers.map(user => `
                 <label class="flex items-center space-x-2 cursor-pointer brutalist-card brutalist-border px-3 py-1 hover:bg-yellow-300 dark:hover:text-black transition-colors">
-                    <input type="checkbox" data-user-id="${user.id}" class="form-checkbox h-4 w-4 bg-transparent text-black border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
+                    <input type="checkbox" data-user-id="${user.id}" class="form-checkbox h-4 w-4 bg-transparent text-black dark:text-yellow-300 border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
                     <span class="text-sm font-bold">${user.name}</span>
                 </label>
             `).join('');
@@ -449,7 +448,7 @@
                     <span>SUBTOTAL</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between text-lg font-bold text-red-600">
+                <div class="flex justify-between text-lg font-bold text-red-600 dark:text-red-500">
                     <span>DISCOUNT</span>
                     <span>- ₹${originalBillData.discount.toFixed(2)}</span>
                 </div>
@@ -464,7 +463,7 @@
             usersList.innerHTML = users.length > 0 ? users.map(user => `
                 <div class="flex items-center gap-2 bg-gray-300 brutalist-border px-3 py-1 dark:bg-gray-700">
                     <span class="font-bold">${user.name}</span>
-                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 font-bold">&times;</button>
+                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 dark:hover:text-red-500 font-bold">&times;</button>
                 </div>
             `).join('') : '<p class="brutalist-text-dim">No users added yet.</p>';
 
@@ -517,7 +516,7 @@
                 const totalOwed = userTotals[user.id] || 0;
                 if (totalOwed <= 0) return '';
                 return `
-                    <div class="flex justify-between items-center bg-yellow-300 p-3 brutalist-border mb-2 dark:text-black">
+                    <div class="flex justify-between items-center bg-yellow-300 p-3 brutalist-border mb-2 text-black">
                         <span class="font-bold">${user.name}</span>
                         <span class="font-bold text-lg">₹${totalOwed.toFixed(2)}</span>
                     </div>
