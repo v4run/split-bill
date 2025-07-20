@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill Splitter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+	<script>
+      // Configure Tailwind CSS to use a class-based dark mode strategy.
+      // This ensures our toggle button has full control over the theme.
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,10 +21,18 @@
             background-color: #ffffff;
             color: #000000;
         }
+        .dark {
+            background-color: #000000;
+            color: #ffffff;
+        }
         .bw-container {
             background-color: #ffffff;
             border: 2px solid #000000;
             border-radius: 0;
+        }
+        .dark .bw-container {
+            background-color: #000000;
+            border-color: #ffffff;
         }
         .bw-header {
             font-weight: 700;
@@ -25,8 +40,14 @@
             letter-spacing: -0.025em;
             color: #000000;
         }
+        .dark .bw-header {
+            color: #ffffff;
+        }
         .section-header {
             color: #000000;
+        }
+        .dark .section-header {
+             color: #ffffff;
         }
         .bw-button {
             border-radius: 0;
@@ -37,15 +58,30 @@
             transition: background-color 0.2s ease;
             padding: 0.5rem 1rem;
         }
+        .dark .bw-button {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
         .bw-button:hover {
             background-color: #333333;
+        }
+        .dark .bw-button:hover {
+             background-color: #cccccc;
         }
         .bw-button-secondary {
             background-color: #ffffff;
             color: #000000;
         }
+        .dark .bw-button-secondary {
+            background-color: #000000;
+            color: #ffffff;
+        }
          .bw-button-secondary:hover {
             background-color: #eeeeee;
+        }
+        .dark .bw-button-secondary:hover {
+             background-color: #222222;
         }
         .bw-input {
             border: 2px solid #000000;
@@ -53,9 +89,17 @@
             padding: 0.5rem 0.75rem;
             background: #ffffff;
         }
+        .dark .bw-input {
+            background-color: #000000;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
         .bw-input:focus {
             outline: none;
             box-shadow: 0 0 0 2px #000000;
+        }
+        .dark .bw-input:focus {
+            box-shadow: 0 0 0 2px #ffffff;
         }
         .bw-checkbox {
             -webkit-appearance: none;
@@ -70,9 +114,16 @@
             vertical-align: middle;
             transition: all 0.2s ease;
         }
+        .dark .bw-checkbox {
+            border-color: #ffffff;
+        }
         .bw-checkbox:checked {
             background-color: #000000;
             border-color: #000000;
+        }
+        .dark .bw-checkbox:checked {
+            background-color: #ffffff;
+            border-color: #ffffff;
         }
         .bw-checkbox:checked::after {
             content: '✓';
@@ -84,6 +135,9 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
+        .dark .bw-checkbox:checked::after {
+            color: #000000;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +146,10 @@
 
         <header class="text-center mb-12 relative">
             <h1 class="bw-header">Bill Splitter</h1>
+            <button id="theme-toggle" class="absolute top-0 right-0 p-2 bw-button bw-button-secondary">
+                <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
         </header>
 
         <!-- Participants Selection -->
@@ -129,7 +187,7 @@
                     <div id="bill-items-list" class="space-y-4">
                         <!-- Items will be dynamically inserted here -->
                     </div>
-                    <div id="bill-summary" class="mt-6 pt-6 border-t-2 border-black">
+                    <div id="bill-summary" class="mt-6 pt-6 border-t-2 border-black dark:border-white">
                          <!-- Summary will be dynamically inserted here -->
                     </div>
                 </div>
@@ -142,7 +200,7 @@
                             <span>Add User</span>
                         </button>
                     </div>
-                    <div id="users-list" class="flex flex-wrap gap-3 p-4 bg-gray-100 border-2 border-black">
+                    <div id="users-list" class="flex flex-wrap gap-3 p-4 bg-gray-100 border-2 border-black dark:bg-black dark:border-white">
                         <!-- Users will be dynamically inserted here -->
                     </div>
                 </div>
@@ -151,9 +209,9 @@
             <!-- Right Column: Final Split -->
             <div class="md:col-span-1">
                 <div class="bw-container p-6 h-full sticky top-8">
-                    <h2 class="text-xl font-bold mb-4 pb-2 border-b-2 border-black section-header">Final Split</h2>
+                    <h2 class="text-xl font-bold mb-4 pb-2 border-b-2 border-black section-header dark:border-white">Final Split</h2>
                     <div id="split-results" class="space-y-3">
-                        <p class="text-gray-500">Assign items to see the split.</p>
+                        <p class="text-gray-500 dark:text-gray-400">Assign items to see the split.</p>
                         <!-- Split details will be dynamically inserted here -->
                     </div>
                 </div>
@@ -237,15 +295,48 @@
         const historyList = document.getElementById('history-list');
         const closeHistoryBtn = document.getElementById('close-history-btn');
         const resetBtn = document.getElementById('reset-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const themeIconDark = document.getElementById('theme-icon-dark');
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
             loadUsersFromStorage();
             loadHistoryFromStorage();
             loadCurrentState(); // Load last state instead of initializing empty
             renderAll();
             setupEventListeners();
         });
+
+        // --- THEME HANDLING ---
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                themeIconLight.classList.add('hidden');
+                themeIconDark.classList.remove('hidden');
+            } else {
+                document.body.classList.remove('dark');
+                themeIconLight.classList.remove('hidden');
+                themeIconDark.classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.contains('dark');
+            if (isDarkMode) {
+                document.body.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIconLight.classList.remove('hidden');
+                themeIconDark.classList.add('hidden');
+            } else {
+                document.body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIconLight.classList.add('hidden');
+                themeIconDark.classList.remove('hidden');
+            }
+        }
 
         // --- DATA HANDLING ---
         function initializeBill() {
@@ -426,12 +517,12 @@
 
         function renderParticipants() {
             if (users.length === 0) {
-                participantsList.innerHTML = '<p class="text-gray-500">Add users to select them as participants.</p>';
+                participantsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Add users to select them as participants.</p>';
                 return;
             }
 
             participantsList.innerHTML = users.map((user, i) => `
-                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-100">
+                <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-zinc-800">
                     <input type="checkbox" data-user-id="${user.id}" class="bw-checkbox participant-checkbox" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
                     <span class="font-medium">${user.name}</span>
                 </label>
@@ -444,7 +535,7 @@
 
         function renderBillItems() {
             if (originalBillData.items.length === 0) {
-                billItemsList.innerHTML = '<p class="text-gray-500">No bill loaded. Click "Load Bill" to begin.</p>';
+                billItemsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No bill loaded. Click "Load Bill" to begin.</p>';
                 return;
             }
 
@@ -455,7 +546,7 @@
                         <div class="flex items-center space-x-2">
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="toggle-${originalItem.originalIndex}" data-original-index="${originalItem.originalIndex}" class="sr-only peer item-split-toggle" checked>
-                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-black peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-zinc-700 peer-focus:ring-2 peer-focus:ring-black dark:peer-focus:ring-white peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-black dark:peer-checked:bg-white"></div>
                                 <span class="ml-3 text-xs font-medium uppercase">Split Individually</span>
                             </label>
                         </div>
@@ -466,10 +557,10 @@
                         const displayPrice = `1 x ₹${originalItem.price.toFixed(2)} = ₹${originalItem.price.toFixed(2)}`;
                         const currentIndex = flatItemIndex + i;
                         return `
-                            <div class="p-3 bg-white border-2 border-black">
+                            <div class="p-3 bg-white dark:bg-black border-2 border-black dark:border-white">
                                 <p class="font-bold section-header">${displayName}</p>
-                                <p class="text-sm text-gray-600">${displayPrice}</p>
-                                <div class="mt-3 pt-3 border-t-2 border-black">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${displayPrice}</p>
+                                <div class="mt-3 pt-3 border-t-2 border-black dark:border-white">
                                     <div class="flex flex-wrap gap-x-4 gap-y-2 user-checkbox-container" data-item-index="${currentIndex}">
                                         ${renderUserCheckboxesForItem(currentIndex)}
                                     </div>
@@ -481,11 +572,11 @@
                     flatItemIndex += originalItem.quantity;
 
                     return `
-                        <div class="p-4 bg-gray-100 border-2 border-black space-y-3">
-                            <div class="flex justify-between items-start pb-2 border-b-2 border-black">
+                        <div class="p-4 bg-gray-100 dark:bg-black border-2 border-black dark:border-white space-y-3">
+                            <div class="flex justify-between items-start pb-2 border-b-2 border-black dark:border-white">
                                 <div>
                                     <p class="font-bold text-lg section-header">${originalItem.name}</p>
-                                    <p class="text-sm text-gray-500">Total Quantity: ${originalItem.quantity}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Quantity: ${originalItem.quantity}</p>
                                 </div>
                                 ${groupHeaderToggle}
                             </div>
@@ -500,7 +591,7 @@
                             <div class="flex items-center space-x-2 mt-3">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="toggle-${item.originalIndex}" data-original-index="${item.originalIndex}" class="sr-only peer item-split-toggle">
-                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-black peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-zinc-700 peer-focus:ring-2 peer-focus:ring-black dark:peer-focus:ring-white peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-black dark:peer-checked:bg-white"></div>
                                     <span class="ml-3 text-xs font-medium uppercase">Split Individually</span>
                                 </label>
                             </div>
@@ -513,15 +604,15 @@
                     flatItemIndex++;
 
                     return `
-                    <div class="p-4 bg-gray-100 border-2 border-black">
+                    <div class="p-4 bg-gray-100 dark:bg-black border-2 border-black dark:border-white">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="font-bold text-lg section-header">${displayName}</p>
-                                <p class="text-sm text-gray-500">${displayPrice}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${displayPrice}</p>
                             </div>
                             ${toggleHTML}
                         </div>
-                        <div class="mt-4 pt-4 border-t-2 border-black">
+                        <div class="mt-4 pt-4 border-t-2 border-black dark:border-white">
                             <div class="flex flex-wrap gap-x-4 gap-y-2 user-checkbox-container" data-item-index="${currentIndex}">
                                 ${renderUserCheckboxesForItem(currentIndex)}
                             </div>
@@ -542,7 +633,7 @@
         function renderUserCheckboxesForItem(itemIndex) {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0) {
-                return '<p class="text-xs text-gray-500">Select participants to assign items.</p>';
+                return '<p class="text-xs text-gray-500 dark:text-gray-400">Select participants to assign items.</p>';
             }
             return participatingUsers.map(user => `
                 <label class="flex items-center space-x-2 cursor-pointer">
@@ -560,11 +651,11 @@
                     <span>Subtotal</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between font-medium text-red-600">
+                <div class="flex justify-between font-medium text-red-600 dark:text-red-400">
                     <span>Discount</span>
                     <span>- ₹${originalBillData.discount.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between font-bold text-xl mt-2 pt-2 border-t-2 border-dashed border-black">
+                <div class="flex justify-between font-bold text-xl mt-2 pt-2 border-t-2 border-dashed border-black dark:border-white">
                     <span>Total</span>
                     <span>₹${originalBillData.total.toFixed(2)}</span>
                 </div>
@@ -573,11 +664,11 @@
 
         function renderUsers() {
             usersList.innerHTML = users.length > 0 ? users.map(user => `
-                <div class="flex items-center gap-2 bg-white px-3 py-1 border-2 border-black">
+                <div class="flex items-center gap-2 bg-white dark:bg-black px-3 py-1 border-2 border-black dark:border-white">
                     <span class="font-medium">${user.name}</span>
-                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 font-bold">&times;</button>
+                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 dark:hover:text-red-400 font-bold">&times;</button>
                 </div>
-            `).join('') : '<p class="text-gray-500">No users added yet.</p>';
+            `).join('') : '<p class="text-gray-500 dark:text-gray-400">No users added yet.</p>';
 
             document.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -589,7 +680,7 @@
 
         function renderHistory() {
             if (billHistory.length === 0) {
-                historyList.innerHTML = '<p class="text-gray-500 p-4 text-center">No saved bills found.</p>';
+                historyList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 p-4 text-center">No saved bills found.</p>';
                 return;
             }
             historyList.innerHTML = billHistory.map((entry, index) => {
@@ -598,10 +689,10 @@
                 const formattedDate = isSample ? "Sample Bill" : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                 const total = entry.billData.grand_total || 0;
                 return `
-                    <div class="flex justify-between items-center p-2 hover:bg-gray-100">
+                    <div class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-zinc-800">
                         <div>
                             <p class="font-bold">${formattedDate}</p>
-                            <p class="text-sm text-gray-600">Total: ₹${total.toFixed(2)}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total: ₹${total.toFixed(2)}</p>
                         </div>
                         <button data-history-index="${index}" class="load-history-btn bw-button bw-button-secondary px-4 py-1">Load</button>
                     </div>
@@ -627,7 +718,7 @@
         function calculateAndRenderSplit() {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0 || !originalBillData) {
-                splitResults.innerHTML = '<p class="text-gray-500">Select participants and assign items to see the split.</p>';
+                splitResults.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Select participants and assign items to see the split.</p>';
                 return;
             }
 
@@ -650,7 +741,7 @@
             const totalSubtotalOfAssignedItems = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
 
             if (totalSubtotalOfAssignedItems === 0) {
-                splitResults.innerHTML = '<p class="text-gray-500">No items have been assigned yet.</p>';
+                splitResults.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No items have been assigned yet.</p>';
                 return;
             }
 
@@ -665,7 +756,7 @@
                 const totalOwed = userTotals[user.id] || 0;
                 if (totalOwed <= 0) return '';
                 return `
-                    <div class="flex justify-between items-center bg-gray-200 p-3 mb-2 text-black">
+                    <div class="flex justify-between items-center bg-gray-200 dark:bg-zinc-800 p-3 mb-2 text-black dark:text-white">
                         <span class="font-bold">${user.name}</span>
                         <span class="font-bold text-lg">₹${totalOwed.toFixed(2)}</span>
                     </div>
@@ -674,7 +765,7 @@
 
             const grandTotalCalculated = Object.values(userTotals).reduce((sum, val) => sum + val, 0);
             splitResults.innerHTML += `
-                <div class="flex justify-between items-center border-t-2 border-dashed border-black mt-4 pt-4">
+                <div class="flex justify-between items-center border-t-2 border-dashed border-black dark:border-white mt-4 pt-4">
                     <span class="font-bold text-lg">Grand Total</span>
                     <span class="font-bold text-xl">₹${grandTotalCalculated.toFixed(2)}</span>
                 </div>
@@ -683,6 +774,7 @@
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
+            themeToggle.addEventListener('click', toggleTheme);
             addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
             cancelUserBtn.addEventListener('click', () => userModal.classList.add('hidden'));
             saveUserBtn.addEventListener('click', () => {
