@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill Splitter</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-			font-family: 'Tahoma', 'Verdana', sans-serif;
+            font-family: 'Tahoma', 'Verdana', sans-serif;
             background-color: #008080; /* Classic Teal background */
             color: #000;
+            font-smooth: never;
+            -webkit-font-smoothing: none;
         }
         .win98-window {
             background-color: #C0C0C0;
@@ -25,7 +24,7 @@
         .win98-title-bar {
             background: linear-gradient(to right, #000080, #1084d0);
             color: #FFFFFF;
-            padding: 2px 4px;
+            padding: 3px 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,13 +40,13 @@
             border-left: 1px solid #FFFFFF;
             border-right: 1px solid #000000;
             border-bottom: 1px solid #000000;
-            width: 16px;
-            height: 14px;
-            margin-left: 2px;
+            width: 18px;
+            height: 16px;
+            margin-left: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: bold;
         }
         .win98-button {
@@ -68,8 +67,8 @@
             transform: translate(1px, 1px);
         }
         .win98-input, .win98-textarea {
-             border-top: 2px solid #000000;
-             border-left: 2px solid #000000;
+             border-top: 2px solid #808080;
+             border-left: 2px solid #808080;
              border-right: 2px solid #FFFFFF;
              border-bottom: 2px solid #FFFFFF;
              background-color: #FFFFFF;
@@ -80,11 +79,20 @@
             outline: none;
         }
         .win98-group-box {
-            border: 2px inset #fff;
+            border: 1px solid #808080;
+            border-right-color: #FFFFFF;
+            border-bottom-color: #FFFFFF;
             padding: 1rem;
             margin: 0.5rem;
-            box-shadow: 1px 1px 0 #000;
+            position: relative;
+        }
+        .win98-group-box > legend {
             background-color: #C0C0C0;
+            padding: 0 0.5rem;
+            position: absolute;
+            top: -0.7em;
+            left: 0.5rem;
+            font-weight: normal;
         }
         .win98-status-bar {
             border-top: 1px solid #808080;
@@ -93,10 +101,10 @@
             font-size: 12px;
         }
         .win98-status-bar-field {
-            border: 1px inset #fff;
+            border: 1px solid #808080;
+            border-right-color: #FFFFFF;
+            border-bottom-color: #FFFFFF;
             padding: 0 4px;
-            box-shadow: 1px 1px 0 #000;
-            background-color: #C0C0C0;
         }
         .win98-checkbox {
             -webkit-appearance: none;
@@ -105,14 +113,18 @@
             width: 16px;
             height: 16px;
             background-color: #fff;
-            border: 2px inset #fff;
-            box-shadow: 1px 1px 0 #000;
+            border-top: 2px solid #808080;
+            border-left: 2px solid #808080;
+            border-right: 2px solid #FFFFFF;
+            border-bottom: 2px solid #FFFFFF;
             display: inline-block;
             position: relative;
+            vertical-align: middle;
         }
         .win98-checkbox:checked::after {
             content: '✓';
             font-size: 14px;
+            font-weight: bold;
             color: #000;
             position: absolute;
             left: 50%;
@@ -130,17 +142,15 @@
                 <span>C:\Bill_Splitter.exe</span>
                 <div class="win98-title-bar-buttons">
                     <button id="theme-toggle" class="win98-title-bar-button" title="Toggle Theme">
-                        <span id="theme-icon-light">☼</span>
-                        <span id="theme-icon-dark" class="hidden">☾</span>
+                        <span>?</span>
                     </button>
-                    <div class="win98-title-bar-button">?</div>
                     <div class="win98-title-bar-button">×</div>
                 </div>
             </div>
             <div class="p-4">
                 <!-- Participants Selection -->
                 <fieldset class="win98-group-box mb-4">
-                    <legend class="px-2 font-bold">Participants</legend>
+                    <legend class="px-2">Participants</legend>
                     <div id="participants-list" class="flex flex-wrap gap-4 p-2">
                         <!-- Participant checkboxes will be dynamically inserted here -->
                     </div>
@@ -155,8 +165,8 @@
                     <!-- Left Column: Bill & Users -->
                     <div class="md:col-span-2 space-y-4">
                         <!-- Bill Items -->
-                        <div id="bill-container" class="win98-group-box">
-                             <legend class="px-2 font-bold">Bill Details</legend>
+                        <fieldset class="win98-group-box">
+                             <legend class="px-2">Bill Details</legend>
                             <div class="flex justify-end mb-2">
                                 <button id="load-bill-btn" class="win98-button">
                                     Load Bill...
@@ -168,11 +178,11 @@
                             <div id="bill-summary" class="mt-4 pt-2 border-t-2 border-gray-500">
                                  <!-- Summary will be dynamically inserted here -->
                             </div>
-                        </div>
+                        </fieldset>
 
                          <!-- Users Section -->
                         <fieldset class="win98-group-box">
-                             <legend class="px-2 font-bold">Manage Users</legend>
+                             <legend class="px-2">Manage Users</legend>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm">Add or remove users from the list.</span>
                                 <button id="add-user-btn" class="win98-button">
@@ -188,7 +198,7 @@
                     <!-- Right Column: Final Split -->
                     <div class="md:col-span-1">
                         <fieldset id="split-container" class="win98-group-box h-full">
-                            <legend class="px-2 font-bold">Final Split</legend>
+                            <legend class="px-2">Final Split</legend>
                             <div id="split-results" class="space-y-2 p-2">
                                 <p class="text-gray-600">Assign items to see the split.</p>
                                 <!-- Split details will be dynamically inserted here -->
@@ -262,29 +272,14 @@
         const saveBillBtn = document.getElementById('save-bill-btn');
         const cancelBillBtn = document.getElementById('cancel-bill-btn');
         const themeToggle = document.getElementById('theme-toggle');
-        const themeIconLight = document.getElementById('theme-icon-light');
-        const themeIconDark = document.getElementById('theme-icon-dark');
-
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            initializeTheme();
             initializeBill();
             loadUsersFromStorage();
             renderAll();
             setupEventListeners();
         });
-
-        // --- THEME HANDLING ---
-        function initializeTheme() {
-            // Windows 98 doesn't have a dark mode, so this is disabled.
-            // You can re-enable if you want a "modernized" Win98 dark theme.
-        }
-
-        function toggleTheme() {
-            // Functionality for theme toggle can be added here if desired.
-            alert("Theme toggling is not a standard feature of Windows 98!");
-        }
 
         // --- DATA HANDLING ---
         function initializeBill() {
@@ -565,7 +560,7 @@
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
-            themeToggle.addEventListener('click', toggleTheme);
+            themeToggle.addEventListener('click', () => alert("Theme toggling is not a standard feature of Windows 98!"));
             addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
             cancelUserBtn.addEventListener('click', () => userModal.classList.add('hidden'));
             saveUserBtn.addEventListener('click', () => {
