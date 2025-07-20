@@ -111,6 +111,9 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-bold text-gray-800">Bill Details</h2>
                         <div class="flex space-x-2">
+                             <button id="reset-btn" class="minimal-button minimal-button-secondary">
+                                <span>Reset</span>
+                            </button>
                             <button id="history-btn" class="minimal-button minimal-button-secondary">
                                 <span>History</span>
                             </button>
@@ -229,12 +232,13 @@
         const historyModal = document.getElementById('history-modal');
         const historyList = document.getElementById('history-list');
         const closeHistoryBtn = document.getElementById('close-history-btn');
+        const resetBtn = document.getElementById('reset-btn');
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            initializeBill();
             loadUsersFromStorage();
             loadHistoryFromStorage();
+            loadCurrentState(); // Load last state instead of initializing empty
             renderAll();
             setupEventListeners();
         });
@@ -245,7 +249,7 @@
             processRawBill(lastLoadedRawJson);
         }
 
-        function processRawBill(rawJson) {
+        function processRawBill(rawJson, itemSplitStates = []) {
             try {
                 originalBillData = {
                     items: (rawJson.items || []).map((item, index) => ({
@@ -253,7 +257,7 @@
                         quantity: item.quantity,
                         price: item.unit_price,
                         originalIndex: index,
-                        splitIndividually: false
+                        splitIndividually: itemSplitStates[index] ?? false
                     })),
                     discount: (rawJson.subtotal && rawJson.grand_total) ? (rawJson.subtotal - rawJson.grand_total) : 0,
                     total: rawJson.grand_total || 0
@@ -269,7 +273,7 @@
 
         function rebuildFlatItems() {
             flatBillItems = [];
-            itemAssignments = {};
+            // DO NOT reset itemAssignments here. It's managed separately.
             originalBillData.items.forEach(originalItem => {
                 if (originalItem.splitIndividually && originalItem.quantity > 1) {
                     for (let i = 0; i < originalItem.quantity; i++) {
@@ -287,9 +291,6 @@
                         quantityIndex: 1
                     });
                 }
-            });
-            flatBillItems.forEach((_, index) => {
-                itemAssignments[index] = [];
             });
         }
 
@@ -348,6 +349,36 @@
             localStorage.setItem('billSplitterHistory', JSON.stringify(billHistory));
         }
 
+        function saveCurrentState() {
+            if (!lastLoadedRawJson) return;
+            const itemSplitStates = originalBillData.items.map(item => item.splitIndividually);
+            const state = {
+                lastLoadedRawJson,
+                participatingUserIds,
+                itemAssignments,
+                itemSplitStates
+            };
+            localStorage.setItem('billSplitterCurrentState', JSON.stringify(state));
+        }
+
+        function loadCurrentState() {
+            const storedState = localStorage.getItem('billSplitterCurrentState');
+            if (storedState) {
+                try {
+                    const state = JSON.parse(storedState);
+                    lastLoadedRawJson = state.lastLoadedRawJson;
+                    participatingUserIds = state.participatingUserIds;
+                    itemAssignments = state.itemAssignments;
+                    processRawBill(lastLoadedRawJson, state.itemSplitStates);
+                } catch (e) {
+                    console.error("Failed to parse saved state.", e);
+                    initializeBill(); // Fallback to a clean slate
+                }
+            } else {
+                initializeBill();
+            }
+        }
+
         // --- RENDERING ---
         function renderAll() {
             if (!originalBillData) return;
@@ -385,7 +416,6 @@
             let flatItemIndex = 0;
             billItemsList.innerHTML = originalBillData.items.map(originalItem => {
                 if (originalItem.splitIndividually && originalItem.quantity > 1) {
-                    // Render a group container for individually split items
                     const groupHeaderToggle = `
                         <div class="flex items-center space-x-2">
                             <label class="relative inline-flex items-center cursor-pointer">
@@ -428,7 +458,6 @@
                         </div>
                     `;
                 } else {
-                    // Render a single item (either quantity is 1 or not split individually)
                     const item = flatBillItems[flatItemIndex];
                     let toggleHTML = '';
                     if (item.originalQuantity > 1) {
@@ -549,8 +578,10 @@
                     const selectedBill = billHistory[index];
                     if (selectedBill) {
                         lastLoadedRawJson = selectedBill.billData;
+                        itemAssignments = {}; // Clear assignments when loading from history
                         processRawBill(lastLoadedRawJson);
                         renderAll();
+                        saveCurrentState();
                         historyModal.classList.add('hidden');
                     }
                 });
@@ -638,8 +669,10 @@
                     const rawJson = JSON.parse(jsonString);
                     lastLoadedRawJson = rawJson;
                     saveBillToHistory(rawJson);
+                    itemAssignments = {}; // Clear assignments for new bill
                     processRawBill(rawJson);
                     renderAll();
+                    saveCurrentState(); // Save the new bill's initial state
                     billModal.classList.add('hidden');
                     billJsonInput.value = '';
                     errorContainer.classList.add('hidden');
@@ -654,14 +687,23 @@
                 historyModal.classList.remove('hidden');
             });
             closeHistoryBtn.addEventListener('click', () => historyModal.classList.add('hidden'));
+
+            resetBtn.addEventListener('click', () => {
+                localStorage.removeItem('billSplitterCurrentState');
+                itemAssignments = {}; // Clear assignments
+                initializeBill();
+                renderAll();
+            });
         }
 
         function handleItemSplitToggle(e) {
             const originalIndex = parseInt(e.target.dataset.originalIndex, 10);
             const isChecked = e.target.checked;
             originalBillData.items[originalIndex].splitIndividually = isChecked;
+            itemAssignments = {}; // Clear all assignments on toggle for simplicity
             rebuildFlatItems();
             renderAll();
+            saveCurrentState();
         }
 
         function handleParticipantChange(e) {
@@ -678,6 +720,7 @@
             }
             renderBillItems();
             calculateAndRenderSplit();
+            saveCurrentState();
         }
 
         function handleAssignmentChange(e) {
@@ -685,7 +728,11 @@
             const userId = checkbox.dataset.userId;
             const itemIndex = checkbox.closest('.user-checkbox-container').dataset.itemIndex;
 
-            const assignedUsers = itemAssignments[itemIndex] || [];
+            if (!itemAssignments[itemIndex]) {
+                itemAssignments[itemIndex] = [];
+            }
+
+            const assignedUsers = itemAssignments[itemIndex];
             if (checkbox.checked) {
                 if (!assignedUsers.includes(userId)) {
                     assignedUsers.push(userId);
@@ -694,6 +741,7 @@
                 itemAssignments[itemIndex] = assignedUsers.filter(uid => uid !== userId);
             }
             calculateAndRenderSplit();
+            saveCurrentState();
         }
 
         // --- UTILITIES ---
