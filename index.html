@@ -27,6 +27,14 @@
             <p class="text-gray-600 mt-2">Split bills easily with friends.</p>
         </header>
 
+        <!-- Participants Selection -->
+        <div id="participants-container" class="bg-white p-6 rounded-2xl shadow-md animate-fade-in mb-6">
+            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Select Participants</h2>
+            <div id="participants-list" class="flex flex-wrap gap-4">
+                <!-- Participant checkboxes will be dynamically inserted here -->
+            </div>
+        </div>
+
         <!-- Error Message Display -->
         <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
             <strong class="font-bold">Error!</strong>
@@ -55,7 +63,7 @@
                  <!-- Users Section -->
                 <div class="bg-white p-6 rounded-2xl shadow-md animate-fade-in">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-semibold">Users</h2>
+                        <h2 class="text-2xl font-semibold">Manage All Users</h2>
                         <button id="add-user-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                             Add User
                         </button>
@@ -105,14 +113,16 @@
 
     <script type="module">
         // --- STATE ---
-        let originalBillData = null; // The raw bill data from URL, transformed to a consistent internal format
-        let flatBillItems = []; // An "exploded" list of items where each item has quantity 1
+        let originalBillData = null;
+        let flatBillItems = [];
         let users = [];
-        let itemAssignments = {}; // { flatItemIndex: [userId1, userId2], ... }
+        let participatingUserIds = [];
+        let itemAssignments = {};
 
         // --- DOM ELEMENTS ---
         const errorContainer = document.getElementById('error-container');
         const errorMessageEl = document.getElementById('error-message');
+        const participantsList = document.getElementById('participants-list');
         const billItemsList = document.getElementById('bill-items-list');
         const billSummaryEl = document.getElementById('bill-summary');
         const usersList = document.getElementById('users-list');
@@ -138,16 +148,14 @@
 
         // --- DATA HANDLING ---
         function initializeBill() {
-            // Start with a default empty bill
             const defaultBill = { items: [], subtotal: 0, grand_total: 0 };
             processRawBill(defaultBill);
         }
 
         function processRawBill(rawJson) {
             try {
-                 // Transform the raw JSON into the app's internal format
                 originalBillData = {
-                    items: rawJson.items.map(item => ({
+                    items: (rawJson.items || []).map(item => ({
                         name: item.item_name,
                         quantity: item.quantity,
                         price: item.unit_price
@@ -156,20 +164,18 @@
                     total: rawJson.grand_total || 0
                 };
 
-                // Explode items with quantity > 1 into individual items
                 flatBillItems = [];
                 originalBillData.items.forEach(item => {
                     for (let i = 0; i < item.quantity; i++) {
                         flatBillItems.push({
                             ...item,
-                            quantity: 1, // Each flat item has quantity 1
-                            originalQuantity: item.quantity, // Keep track of original
-                            quantityIndex: i + 1 // e.g., 1 of 2, 2 of 2
+                            quantity: 1,
+                            originalQuantity: item.quantity,
+                            quantityIndex: i + 1
                         });
                     }
                 });
 
-                // Initialize assignments for each flat item
                 itemAssignments = {};
                 flatBillItems.forEach((_, index) => {
                     itemAssignments[index] = [];
@@ -177,7 +183,7 @@
             } catch (error) {
                 console.error("Failed to process bill data:", error);
                 showError("Could not process the provided bill data. Check the format.");
-                originalBillData = { items: [], discount: 0, total: 0 }; // Fallback to empty bill on error
+                originalBillData = { items: [], discount: 0, total: 0 };
                 flatBillItems = [];
             }
         }
@@ -186,6 +192,7 @@
             const storedUsers = localStorage.getItem('billSplitterUsers');
             if (storedUsers) {
                 users = JSON.parse(storedUsers);
+                participatingUserIds = users.map(u => u.id); // By default, all users participate
             }
         }
 
@@ -200,15 +207,16 @@
                 name: name.trim()
             };
             users.push(newUser);
+            participatingUserIds.push(newUser.id); // New users participate by default
             saveUsersToStorage();
             renderAll();
         }
 
         function deleteUser(userIdToDelete) {
             users = users.filter(user => user.id !== userIdToDelete);
+            participatingUserIds = participatingUserIds.filter(id => id !== userIdToDelete);
             saveUsersToStorage();
 
-            // Unassign this user from all items
             Object.keys(itemAssignments).forEach(itemIndex => {
                 itemAssignments[itemIndex] = itemAssignments[itemIndex].filter(uid => uid !== userIdToDelete);
             });
@@ -216,14 +224,32 @@
             renderAll();
         }
 
-
         // --- RENDERING ---
         function renderAll() {
             if (!originalBillData) return;
+            renderParticipants();
             renderBillItems();
             renderBillSummary();
             renderUsers();
             calculateAndRenderSplit();
+        }
+
+        function renderParticipants() {
+            if (users.length === 0) {
+                participantsList.innerHTML = '<p class="text-gray-500">Add users to select them as participants.</p>';
+                return;
+            }
+
+            participantsList.innerHTML = users.map(user => `
+                <label class="flex items-center space-x-2 cursor-pointer bg-white border rounded-full px-4 py-2 text-md hover:bg-gray-100 transition-colors">
+                    <input type="checkbox" data-user-id="${user.id}" class="participant-checkbox rounded text-green-500 focus:ring-green-500" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
+                    <span>${user.name}</span>
+                </label>
+            `).join('');
+
+            document.querySelectorAll('.participant-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', handleParticipantChange);
+            });
         }
 
         function renderBillItems() {
@@ -254,17 +280,17 @@
                 </div>
             `}).join('');
 
-            // Add event listeners after rendering
             document.querySelectorAll('.user-checkbox-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.addEventListener('change', handleAssignmentChange);
             });
         }
 
         function renderUserCheckboxesForItem(itemIndex) {
-            if (users.length === 0) {
-                return '<p class="text-xs text-gray-500">Add users to assign them.</p>';
+            const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
+            if (participatingUsers.length === 0) {
+                return '<p class="text-xs text-gray-500">Select participants to assign items.</p>';
             }
-            return users.map(user => `
+            return participatingUsers.map(user => `
                 <label class="flex items-center space-x-2 cursor-pointer bg-white border rounded-full px-3 py-1 text-sm hover:bg-gray-100 transition-colors">
                     <input type="checkbox" data-user-id="${user.id}" class="rounded text-blue-500 focus:ring-blue-500" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
                     <span>${user.name}</span>
@@ -308,21 +334,24 @@
         }
 
         function calculateAndRenderSplit() {
-            if (users.length === 0 || !originalBillData) {
-                splitResults.innerHTML = '<p class="text-gray-500">Add users and assign items to see the split.</p>';
+            const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
+            if (participatingUsers.length === 0 || !originalBillData) {
+                splitResults.innerHTML = '<p class="text-gray-500">Select participants and assign items to see the split.</p>';
                 return;
             }
 
             const userSubtotals = {};
-            users.forEach(user => userSubtotals[user.id] = 0);
+            participatingUsers.forEach(user => userSubtotals[user.id] = 0);
 
             flatBillItems.forEach((item, index) => {
                 const assignedUserIds = itemAssignments[index] || [];
                 if (assignedUserIds.length > 0) {
-                    const itemTotal = item.price * item.quantity; // quantity is always 1 here
+                    const itemTotal = item.price * item.quantity;
                     const costPerUser = itemTotal / assignedUserIds.length;
                     assignedUserIds.forEach(uid => {
-                        userSubtotals[uid] += costPerUser;
+                        if (userSubtotals.hasOwnProperty(uid)) {
+                           userSubtotals[uid] += costPerUser;
+                        }
                     });
                 }
             });
@@ -335,15 +364,15 @@
             }
 
             const userTotals = {};
-            users.forEach(user => {
+            participatingUsers.forEach(user => {
                 const userShareOfSubtotal = (totalSubtotalOfAssignedItems > 0) ? (userSubtotals[user.id] / totalSubtotalOfAssignedItems) : 0;
                 const userDiscount = originalBillData.discount * userShareOfSubtotal;
                 userTotals[user.id] = userSubtotals[user.id] - userDiscount;
             });
 
-            splitResults.innerHTML = users.map(user => {
+            splitResults.innerHTML = participatingUsers.map(user => {
                 const totalOwed = userTotals[user.id] || 0;
-                if (totalOwed <= 0) return ''; // Don't show users who owe nothing
+                if (totalOwed <= 0) return '';
                 return `
                     <div class="flex justify-between items-center bg-blue-50 p-3 rounded-lg mb-2">
                         <span class="font-medium text-blue-800">${user.name}</span>
@@ -402,12 +431,28 @@
                     renderAll();
                     billModal.classList.add('hidden');
                     billJsonInput.value = '';
-                    errorContainer.classList.add('hidden'); // Hide previous errors
+                    errorContainer.classList.add('hidden');
                 } catch (error) {
                     showError("Invalid JSON format. Please check the pasted data.");
                     console.error("JSON Parse Error:", error);
                 }
             });
+        }
+
+        function handleParticipantChange(e) {
+            const userId = e.target.dataset.userId;
+            if (e.target.checked) {
+                if (!participatingUserIds.includes(userId)) {
+                    participatingUserIds.push(userId);
+                }
+            } else {
+                participatingUserIds = participatingUserIds.filter(id => id !== userId);
+                Object.keys(itemAssignments).forEach(itemIndex => {
+                    itemAssignments[itemIndex] = itemAssignments[itemIndex].filter(uid => uid !== userId);
+                });
+            }
+            renderBillItems();
+            calculateAndRenderSplit();
         }
 
         function handleAssignmentChange(e) {
