@@ -88,9 +88,10 @@
 
     <script type="module">
         // --- STATE ---
-        let billData = null;
+        let originalBillData = null; // The raw bill data from URL
+        let flatBillItems = []; // An "exploded" list of items where each item has quantity 1
         let users = [];
-        let itemAssignments = {}; // { itemIndex: [userId1, userId2], ... }
+        let itemAssignments = {}; // { flatItemIndex: [userId1, userId2], ... }
 
         // --- DOM ELEMENTS ---
         const errorContainer = document.getElementById('error-container');
@@ -120,23 +121,35 @@
                 const billParam = urlParams.get('bill');
 
                 if (!billParam) {
-                    // If no bill data, use a default empty object without showing an error.
-                    billData = { items: [], discount: 0, total: 0 };
-                    return;
+                    originalBillData = { items: [], discount: 0, total: 0 };
+                } else {
+                    const decodedJson = atob(billParam);
+                    originalBillData = JSON.parse(decodedJson);
                 }
 
-                const decodedJson = atob(billParam);
-                billData = JSON.parse(decodedJson);
+                // Explode items with quantity > 1 into individual items
+                flatBillItems = [];
+                originalBillData.items.forEach(item => {
+                    for (let i = 0; i < item.quantity; i++) {
+                        flatBillItems.push({
+                            ...item,
+                            quantity: 1, // Each flat item has quantity 1
+                            originalQuantity: item.quantity, // Keep track of original
+                            quantityIndex: i + 1 // e.g., 1 of 2, 2 of 2
+                        });
+                    }
+                });
 
-                // Initialize assignments for each item
-                billData.items.forEach((_, index) => {
+                // Initialize assignments for each flat item
+                flatBillItems.forEach((_, index) => {
                     itemAssignments[index] = [];
                 });
 
             } catch (error) {
                 console.error("Failed to parse bill data:", error);
                 showError("Invalid bill data in URL. Make sure it's a valid Base64 encoded JSON.");
-                billData = { items: [], discount: 0, total: 0 }; // Fallback to empty bill on error
+                originalBillData = { items: [], discount: 0, total: 0 }; // Fallback to empty bill on error
+                flatBillItems = [];
             }
         }
 
@@ -177,7 +190,7 @@
 
         // --- RENDERING ---
         function renderAll() {
-            if (!billData) return;
+            if (!originalBillData) return;
             renderBillItems();
             renderBillSummary();
             renderUsers();
@@ -185,17 +198,22 @@
         }
 
         function renderBillItems() {
-            if (!billData || !billData.items || billData.items.length === 0) {
+            if (flatBillItems.length === 0) {
                 billItemsList.innerHTML = '<p class="text-gray-500">No items in this bill. You can load a bill via a URL parameter.</p>';
                 return;
             }
 
-            billItemsList.innerHTML = billData.items.map((item, index) => `
+            billItemsList.innerHTML = flatBillItems.map((item, index) => {
+                const displayName = item.originalQuantity > 1
+                    ? `${item.name} (${item.quantityIndex} of ${item.originalQuantity})`
+                    : item.name;
+
+                return `
                 <div class="border p-4 rounded-lg bg-gray-50">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-bold text-lg">${item.name}</p>
-                            <p class="text-sm text-gray-600">${item.quantity} x ₹${item.price.toFixed(2)} = ₹${(item.quantity * item.price).toFixed(2)}</p>
+                            <p class="font-bold text-lg">${displayName}</p>
+                            <p class="text-sm text-gray-600">1 x ₹${item.price.toFixed(2)} = ₹${item.price.toFixed(2)}</p>
                         </div>
                     </div>
                     <div class="mt-3 pt-3 border-t">
@@ -205,7 +223,7 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             // Add event listeners after rendering
             document.querySelectorAll('.user-checkbox-container input[type="checkbox"]').forEach(checkbox => {
@@ -226,8 +244,8 @@
         }
 
         function renderBillSummary() {
-            if (!billData) return;
-            const subtotal = billData.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            if (!originalBillData) return;
+            const subtotal = originalBillData.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
             billSummaryEl.innerHTML = `
                 <div class="flex justify-between text-lg">
                     <span class="font-medium">Subtotal</span>
@@ -235,11 +253,11 @@
                 </div>
                 <div class="flex justify-between text-lg text-red-500">
                     <span class="font-medium">Discount</span>
-                    <span>- ₹${billData.discount.toFixed(2)}</span>
+                    <span>- ₹${originalBillData.discount.toFixed(2)}</span>
                 </div>
                 <div class="flex justify-between text-xl font-bold mt-2 pt-2 border-t">
                     <span>Total</span>
-                    <span>₹${billData.total.toFixed(2)}</span>
+                    <span>₹${originalBillData.total.toFixed(2)}</span>
                 </div>
             `;
         }
@@ -261,7 +279,7 @@
         }
 
         function calculateAndRenderSplit() {
-            if (users.length === 0 || !billData) {
+            if (users.length === 0 || !originalBillData) {
                 splitResults.innerHTML = '<p class="text-gray-500">Add users and assign items to see the split.</p>';
                 return;
             }
@@ -269,10 +287,10 @@
             const userSubtotals = {};
             users.forEach(user => userSubtotals[user.id] = 0);
 
-            billData.items.forEach((item, index) => {
+            flatBillItems.forEach((item, index) => {
                 const assignedUserIds = itemAssignments[index] || [];
                 if (assignedUserIds.length > 0) {
-                    const itemTotal = item.price * item.quantity;
+                    const itemTotal = item.price * item.quantity; // quantity is always 1 here
                     const costPerUser = itemTotal / assignedUserIds.length;
                     assignedUserIds.forEach(uid => {
                         userSubtotals[uid] += costPerUser;
@@ -280,17 +298,17 @@
                 }
             });
 
-            const totalSubtotal = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
+            const totalSubtotalOfAssignedItems = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
 
-            if (totalSubtotal === 0) {
+            if (totalSubtotalOfAssignedItems === 0) {
                 splitResults.innerHTML = '<p class="text-gray-500">No items have been assigned yet.</p>';
                 return;
             }
 
             const userTotals = {};
             users.forEach(user => {
-                const userShareOfSubtotal = (totalSubtotal > 0) ? (userSubtotals[user.id] / totalSubtotal) : 0;
-                const userDiscount = billData.discount * userShareOfSubtotal;
+                const userShareOfSubtotal = (totalSubtotalOfAssignedItems > 0) ? (userSubtotals[user.id] / totalSubtotalOfAssignedItems) : 0;
+                const userDiscount = originalBillData.discount * userShareOfSubtotal;
                 userTotals[user.id] = userSubtotals[user.id] - userDiscount;
             });
 
