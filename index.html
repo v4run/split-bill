@@ -306,6 +306,15 @@
                 if (!localStorage.getItem('billSplitterCurrentState')) {
                     participatingUserIds = users.map(u => u.id);
                 }
+            } else {
+                // If no users, create sample users
+                users = [
+                    { id: crypto.randomUUID(), name: 'Alice' },
+                    { id: crypto.randomUUID(), name: 'Bob' },
+                    { id: crypto.randomUUID(), name: 'Charlie' }
+                ];
+                participatingUserIds = users.map(u => u.id);
+                saveUsersToStorage();
             }
         }
 
@@ -339,14 +348,27 @@
 
         function loadHistoryFromStorage() {
             const storedHistory = localStorage.getItem('billSplitterHistory');
-            if(storedHistory) {
+            if(storedHistory && JSON.parse(storedHistory).length > 0) {
                 billHistory = JSON.parse(storedHistory);
+            } else {
+                // If no history, create a sample bill and save it
+                const sampleBill = {
+                  "items": [
+                    { "item_name": "Espresso", "quantity": 2, "unit_price": 120.00, "total_price": 240.00 },
+                    { "item_name": "Margherita Pizza", "quantity": 1, "unit_price": 450.00, "total_price": 450.00 },
+                    { "item_name": "Garlic Bread", "quantity": 1, "unit_price": 220.00, "total_price": 220.00 },
+                    { "item_name": "Iced Tea", "quantity": 3, "unit_price": 150.00, "total_price": 450.00 }
+                  ],
+                  "subtotal": 1360.00,
+                  "grand_total": 1360.00
+                };
+                saveBillToHistory(sampleBill, true);
             }
         }
 
-        function saveBillToHistory(rawJson) {
+        function saveBillToHistory(rawJson, isSample = false) {
             const newEntry = {
-                date: new Date().toISOString(),
+                date: isSample ? "Sample Bill" : new Date().toISOString(),
                 billData: rawJson
             };
             billHistory.unshift(newEntry); // Add to the beginning
@@ -382,7 +404,13 @@
                     initializeBill(); // Fallback to a clean slate
                 }
             } else {
-                initializeBill();
+                // If no current state, load the most recent bill from history (which could be the sample)
+                if (billHistory.length > 0) {
+                    lastLoadedRawJson = billHistory[0].billData;
+                    processRawBill(lastLoadedRawJson);
+                } else {
+                    initializeBill();
+                }
             }
         }
 
@@ -565,13 +593,14 @@
                 return;
             }
             historyList.innerHTML = billHistory.map((entry, index) => {
-                const date = new Date(entry.date);
-                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                const isSample = entry.date === "Sample Bill";
+                const date = isSample ? new Date() : new Date(entry.date);
+                const formattedDate = isSample ? "Sample Bill" : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                 const total = entry.billData.grand_total || 0;
                 return `
                     <div class="flex justify-between items-center p-2 hover:bg-gray-100">
                         <div>
-                            <p class="font-bold">Bill from ${formattedDate}</p>
+                            <p class="font-bold">${formattedDate}</p>
                             <p class="text-sm text-gray-600">Total: ₹${total.toFixed(2)}</p>
                         </div>
                         <button data-history-index="${index}" class="load-history-btn bw-button bw-button-secondary px-4 py-1">Load</button>
@@ -654,7 +683,6 @@
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
-            themeToggle.addEventListener('click', toggleTheme);
             addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
             cancelUserBtn.addEventListener('click', () => userModal.classList.add('hidden'));
             saveUserBtn.addEventListener('click', () => {
