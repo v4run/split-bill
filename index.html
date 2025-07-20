@@ -7,182 +7,229 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'IBM Plex Mono', monospace;
-            background-color: #f0f0f0;
+			font-family: 'Tahoma', 'Verdana', sans-serif;
+            background-color: #008080; /* Classic Teal background */
             color: #000;
-            transition: background-color 0.3s, color 0.3s;
         }
-        .dark {
-            background-color: #1a1a1a;
-            color: #f0f0f0;
+        .win98-window {
+            background-color: #C0C0C0;
+            border-top: 2px solid #FFFFFF;
+            border-left: 2px solid #FFFFFF;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            box-shadow: 1px 1px 0 #000;
         }
-        .brutalist-border {
-            border: 2px solid #000;
+        .win98-title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: #FFFFFF;
+            padding: 2px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            text-shadow: 1px 1px #000;
         }
-        .dark .brutalist-border {
-            border-color: #f0f0f0;
+        .win98-title-bar-buttons {
+            display: flex;
         }
-        .brutalist-shadow {
-            box-shadow: 4px 4px 0 #000;
+        .win98-title-bar-button {
+            background-color: #C0C0C0;
+            border-top: 1px solid #FFFFFF;
+            border-left: 1px solid #FFFFFF;
+            border-right: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            width: 16px;
+            height: 14px;
+            margin-left: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
         }
-        .dark .brutalist-shadow {
-            box-shadow: 4px 4px 0 #f0f0f0;
+        .win98-button {
+            background-color: #C0C0C0;
+            border-top: 2px solid #FFFFFF;
+            border-left: 2px solid #FFFFFF;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            box-shadow: 1px 1px 0 #000;
+            padding: 4px 12px;
         }
-        .brutalist-button {
-            border: 2px solid #000;
-            box-shadow: 4px 4px 0 #000;
-            transition: all 0.1s ease-in-out;
+        .win98-button:active {
+            border-top: 2px solid #000000;
+            border-left: 2px solid #000000;
+            border-right: 2px solid #FFFFFF;
+            border-bottom: 2px solid #FFFFFF;
+            box-shadow: none;
+            transform: translate(1px, 1px);
         }
-        .dark .brutalist-button {
-             border-color: #f0f0f0;
-             box-shadow: 4px 4px 0 #f0f0f0;
-        }
-        .brutalist-button:active {
-            box-shadow: 0 0 0 #000;
-            transform: translate(4px, 4px);
-        }
-        .dark .brutalist-button:active {
-            box-shadow: 0 0 0 #f0f0f0;
-        }
-        .brutalist-input {
-             border: 2px solid #000;
-             background-color: #fff;
+        .win98-input, .win98-textarea {
+             border-top: 2px solid #000000;
+             border-left: 2px solid #000000;
+             border-right: 2px solid #FFFFFF;
+             border-bottom: 2px solid #FFFFFF;
+             background-color: #FFFFFF;
              color: #000;
+             padding: 4px;
         }
-        .dark .brutalist-input {
-             border-color: #f0f0f0;
-             background-color: #1a1a1a;
-             color: #f0f0f0;
-        }
-        .brutalist-input:focus {
+        .win98-input:focus, .win98-textarea:focus {
             outline: none;
-            border-color: #ff0000;
-            box-shadow: 0 0 0 2px #ff0000;
         }
-        .dark .brutalist-input:focus {
-             border-color: #ff5555;
-             box-shadow: 0 0 0 2px #ff5555;
+        .win98-group-box {
+            border: 2px inset #fff;
+            padding: 1rem;
+            margin: 0.5rem;
+            box-shadow: 1px 1px 0 #000;
+            background-color: #C0C0C0;
         }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+        .win98-status-bar {
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #fff;
+            padding: 2px 4px;
+            font-size: 12px;
         }
-        .brutalist-card {
+        .win98-status-bar-field {
+            border: 1px inset #fff;
+            padding: 0 4px;
+            box-shadow: 1px 1px 0 #000;
+            background-color: #C0C0C0;
+        }
+        .win98-checkbox {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
             background-color: #fff;
+            border: 2px inset #fff;
+            box-shadow: 1px 1px 0 #000;
+            display: inline-block;
+            position: relative;
         }
-        .dark .brutalist-card {
-            background-color: #2a2a2a;
-        }
-        .brutalist-card-alt {
-            background-color: #f0f0f0;
-        }
-        .dark .brutalist-card-alt {
-            background-color: #3a3a3a;
-        }
-        .brutalist-text-dim {
-            color: #666;
-        }
-        .dark .brutalist-text-dim {
-            color: #aaa;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        .win98-checkbox:checked::after {
+            content: '✓';
+            font-size: 14px;
+            color: #000;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
 
-    <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
-        <header class="text-center mb-12 relative">
-            <h1 class="text-5xl font-bold tracking-tighter">BILL SPLITTER</h1>
-            <button id="theme-toggle" class="absolute top-0 right-0 p-2 brutalist-button bg-yellow-300 text-black">
-                <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            </button>
-        </header>
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl">
 
-        <!-- Participants Selection -->
-        <div id="participants-container" class="brutalist-card p-6 brutalist-border brutalist-shadow animate-fade-in mb-8">
-            <h2 class="text-2xl font-bold mb-4 border-b-2 border-black pb-2 dark:border-gray-200">PARTICIPANTS</h2>
-            <div id="participants-list" class="flex flex-wrap gap-4">
-                <!-- Participant checkboxes will be dynamically inserted here -->
-            </div>
-        </div>
-
-        <!-- Error Message Display -->
-        <div id="error-container" class="hidden bg-red-500 text-white font-bold p-4 brutalist-border mb-8" role="alert">
-            <span id="error-message"></span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Left Column: Bill & Users -->
-            <div class="md:col-span-2 space-y-8">
-                <!-- Bill Items -->
-                <div id="bill-container" class="brutalist-card p-6 brutalist-border brutalist-shadow animate-fade-in">
-                    <div class="flex justify-between items-center mb-4 border-b-2 border-black pb-2 dark:border-gray-200">
-                        <h2 class="text-2xl font-bold">BILL DETAILS</h2>
-                        <button id="load-bill-btn" class="bg-green-400 hover:bg-green-500 dark:bg-green-600 dark:hover:bg-green-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">
-                            LOAD BILL
-                        </button>
-                    </div>
-                    <div id="bill-items-list" class="space-y-4">
-                        <!-- Items will be dynamically inserted here -->
-                    </div>
-                    <div id="bill-summary" class="mt-6 pt-4 border-t-2 border-black dark:border-gray-200">
-                         <!-- Summary will be dynamically inserted here -->
-                    </div>
-                </div>
-
-                 <!-- Users Section -->
-                <div class="brutalist-card p-6 brutalist-border brutalist-shadow animate-fade-in">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">MANAGE USERS</h2>
-                        <button id="add-user-btn" class="bg-blue-400 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">
-                            ADD USER
-                        </button>
-                    </div>
-                    <div id="users-list" class="flex flex-wrap gap-2">
-                        <!-- Users will be dynamically inserted here -->
-                    </div>
+        <div class="win98-window">
+            <div class="win98-title-bar">
+                <span>C:\Bill_Splitter.exe</span>
+                <div class="win98-title-bar-buttons">
+                    <button id="theme-toggle" class="win98-title-bar-button" title="Toggle Theme">
+                        <span id="theme-icon-light">☼</span>
+                        <span id="theme-icon-dark" class="hidden">☾</span>
+                    </button>
+                    <div class="win98-title-bar-button">?</div>
+                    <div class="win98-title-bar-button">×</div>
                 </div>
             </div>
+            <div class="p-4">
+                <!-- Participants Selection -->
+                <fieldset class="win98-group-box mb-4">
+                    <legend class="px-2 font-bold">Participants</legend>
+                    <div id="participants-list" class="flex flex-wrap gap-4 p-2">
+                        <!-- Participant checkboxes will be dynamically inserted here -->
+                    </div>
+                </fieldset>
 
-            <!-- Right Column: Final Split -->
-            <div class="md:col-span-1">
-                <div id="split-container" class="brutalist-card p-6 brutalist-border brutalist-shadow sticky top-8 animate-fade-in">
-                    <h2 class="text-2xl font-bold mb-4 border-b-2 border-black pb-2 dark:border-gray-200">FINAL SPLIT</h2>
-                    <div id="split-results" class="space-y-3">
-                        <p class="brutalist-text-dim">Assign items to see the split.</p>
-                        <!-- Split details will be dynamically inserted here -->
+                <!-- Error Message Display -->
+                <div id="error-container" class="hidden bg-red-500 text-white font-bold p-2 mb-4 border-2 border-red-700" role="alert">
+                    <span id="error-message"></span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Left Column: Bill & Users -->
+                    <div class="md:col-span-2 space-y-4">
+                        <!-- Bill Items -->
+                        <div id="bill-container" class="win98-group-box">
+                             <legend class="px-2 font-bold">Bill Details</legend>
+                            <div class="flex justify-end mb-2">
+                                <button id="load-bill-btn" class="win98-button">
+                                    Load Bill...
+                                </button>
+                            </div>
+                            <div id="bill-items-list" class="space-y-2 p-2 bg-white win98-input h-64 overflow-y-auto">
+                                <!-- Items will be dynamically inserted here -->
+                            </div>
+                            <div id="bill-summary" class="mt-4 pt-2 border-t-2 border-gray-500">
+                                 <!-- Summary will be dynamically inserted here -->
+                            </div>
+                        </div>
+
+                         <!-- Users Section -->
+                        <fieldset class="win98-group-box">
+                             <legend class="px-2 font-bold">Manage Users</legend>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm">Add or remove users from the list.</span>
+                                <button id="add-user-btn" class="win98-button">
+                                    Add User...
+                                </button>
+                            </div>
+                            <div id="users-list" class="flex flex-wrap gap-2 p-2 border-2 inset-white bg-white win98-input">
+                                <!-- Users will be dynamically inserted here -->
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Right Column: Final Split -->
+                    <div class="md:col-span-1">
+                        <fieldset id="split-container" class="win98-group-box h-full">
+                            <legend class="px-2 font-bold">Final Split</legend>
+                            <div id="split-results" class="space-y-2 p-2">
+                                <p class="text-gray-600">Assign items to see the split.</p>
+                                <!-- Split details will be dynamically inserted here -->
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
+            </div>
+            <div class="win98-status-bar flex justify-between">
+                <div class="win98-status-bar-field">Ready</div>
+                <div class="win98-status-bar-field">NUM</div>
             </div>
         </div>
     </div>
 
     <!-- Add User Modal -->
-    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden">
-        <div class="brutalist-card p-8 w-full max-w-sm brutalist-border brutalist-shadow animate-fade-in">
-            <h3 class="text-2xl font-bold mb-4">ADD NEW USER</h3>
-            <input type="text" id="new-user-name" class="w-full p-3 text-lg brutalist-input" placeholder="Enter name...">
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="cancel-user-btn" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">CANCEL</button>
-                <button id="save-user-btn" class="bg-blue-400 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">SAVE</button>
-            </div>
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center p-4 hidden">
+        <div class="win98-window w-full max-w-sm">
+             <div class="win98-title-bar"><span>Add New User</span></div>
+             <div class="p-4 text-center">
+                <label for="new-user-name" class="block mb-2">User Name:</label>
+                <input type="text" id="new-user-name" class="w-full win98-input" placeholder="e.g., John Doe">
+                <div class="mt-6 flex justify-center space-x-3">
+                    <button id="save-user-btn" class="win98-button w-24">OK</button>
+                    <button id="cancel-user-btn" class="win98-button w-24">Cancel</button>
+                </div>
+             </div>
         </div>
     </div>
 
     <!-- Load Bill Modal -->
-    <div id="bill-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden">
-        <div class="brutalist-card p-8 w-full max-w-lg brutalist-border brutalist-shadow animate-fade-in">
-            <h3 class="text-2xl font-bold mb-4">PASTE BILL JSON</h3>
-            <textarea id="bill-json-input" class="w-full h-64 p-3 text-sm brutalist-input" placeholder='Paste your bill JSON here...'></textarea>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="cancel-bill-btn" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">CANCEL</button>
-                <button id="save-bill-btn" class="bg-green-400 hover:bg-green-500 dark:bg-green-600 dark:hover:bg-green-700 text-black dark:text-white font-bold py-2 px-4 brutalist-button">LOAD</button>
+    <div id="bill-modal" class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center p-4 hidden">
+        <div class="win98-window w-full max-w-lg">
+            <div class="win98-title-bar"><span>Load Bill from JSON</span></div>
+            <div class="p-4">
+                <p class="mb-2">Paste the contents of your JSON file below:</p>
+                <textarea id="bill-json-input" class="w-full h-64 win98-textarea" placeholder='{ "items": [ ... ] }'></textarea>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button id="save-bill-btn" class="win98-button w-24">OK</button>
+                    <button id="cancel-bill-btn" class="win98-button w-24">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -230,24 +277,13 @@
 
         // --- THEME HANDLING ---
         function initializeTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.body.classList.add('dark');
-                themeIconLight.classList.add('hidden');
-                themeIconDark.classList.remove('hidden');
-            } else {
-                document.body.classList.remove('dark');
-                themeIconLight.classList.remove('hidden');
-                themeIconDark.classList.add('hidden');
-            }
+            // Windows 98 doesn't have a dark mode, so this is disabled.
+            // You can re-enable if you want a "modernized" Win98 dark theme.
         }
 
         function toggleTheme() {
-            document.body.classList.toggle('dark');
-            const isDarkMode = document.body.classList.contains('dark');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            themeIconLight.classList.toggle('hidden', isDarkMode);
-            themeIconDark.classList.toggle('hidden', !isDarkMode);
+            // Functionality for theme toggle can be added here if desired.
+            alert("Theme toggling is not a standard feature of Windows 98!");
         }
 
         // --- DATA HANDLING ---
@@ -263,8 +299,8 @@
                         name: item.item_name,
                         quantity: item.quantity,
                         price: item.unit_price,
-                        originalIndex: index, // Keep track of original position
-                        splitIndividually: false // Default to splitting as a group
+                        originalIndex: index,
+                        splitIndividually: false
                     })),
                     discount: (rawJson.subtotal && rawJson.grand_total) ? (rawJson.subtotal - rawJson.grand_total) : 0,
                     total: rawJson.grand_total || 0
@@ -299,7 +335,6 @@
                     });
                 }
             });
-            // Initialize assignments for the new flat list
             flatBillItems.forEach((_, index) => {
                 itemAssignments[index] = [];
             });
@@ -353,14 +388,14 @@
 
         function renderParticipants() {
             if (users.length === 0) {
-                participantsList.innerHTML = '<p class="brutalist-text-dim">Add users to select them as participants.</p>';
+                participantsList.innerHTML = '<p class="text-gray-600">Add users to select them as participants.</p>';
                 return;
             }
 
             participantsList.innerHTML = users.map(user => `
-                <label class="flex items-center space-x-2 cursor-pointer brutalist-card brutalist-border px-4 py-2 hover:bg-yellow-300 dark:hover:text-black transition-colors">
-                    <input type="checkbox" data-user-id="${user.id}" class="participant-checkbox form-checkbox h-5 w-5 bg-transparent text-black dark:text-yellow-300 border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
-                    <span class="font-bold">${user.name}</span>
+                <label class="flex items-center space-x-2 cursor-pointer p-1">
+                    <input type="checkbox" data-user-id="${user.id}" class="win98-checkbox participant-checkbox" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
+                    <span>${user.name}</span>
                 </label>
             `).join('');
 
@@ -371,7 +406,7 @@
 
         function renderBillItems() {
             if (flatBillItems.length === 0) {
-                billItemsList.innerHTML = '<p class="brutalist-text-dim">No bill loaded. Click "LOAD BILL" to paste your bill data.</p>';
+                billItemsList.innerHTML = '<p class="text-gray-600 p-2">No bill loaded. Click "Load Bill..." to begin.</p>';
                 return;
             }
 
@@ -383,12 +418,9 @@
 
                 if (item.originalQuantity > 1 && item.quantityIndex === 1) {
                     toggleHTML = `
-                        <div class="flex items-center space-x-2 mt-3">
-                            <span class="text-xs font-bold">SPLIT INDIVIDUALLY</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" data-original-index="${item.originalIndex}" class="sr-only peer item-split-toggle" ${originalItem.splitIndividually ? 'checked' : ''}>
-                                <div class="w-9 h-5 bg-gray-400 peer-checked:bg-red-500 brutalist-border dark:border-gray-200"></div>
-                            </label>
+                        <div class="flex items-center space-x-2 mt-2">
+                            <input type="checkbox" id="toggle-${item.originalIndex}" data-original-index="${item.originalIndex}" class="win98-checkbox item-split-toggle" ${originalItem.splitIndividually ? 'checked' : ''}>
+                            <label for="toggle-${item.originalIndex}" class="text-xs">Split Individually</label>
                         </div>
                     `;
                 }
@@ -402,17 +434,16 @@
                 }
 
                 return `
-                <div class="brutalist-border brutalist-card-alt p-4">
+                <div class="p-2 border-b border-gray-400">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-bold text-lg">${displayName}</p>
-                            <p class="text-sm">${displayPrice}</p>
+                            <p class="font-bold">${displayName}</p>
+                            <p class="text-sm text-gray-700">${displayPrice}</p>
                         </div>
                         ${toggleHTML}
                     </div>
-                    <div class="mt-3 pt-3 border-t-2 border-black dark:border-gray-200">
-                        <p class="text-sm font-bold mb-2">SPLIT WITH:</p>
-                        <div class="flex flex-wrap gap-2 user-checkbox-container" data-item-index="${index}">
+                    <div class="mt-2 pt-2">
+                        <div class="flex flex-wrap gap-x-4 gap-y-1 user-checkbox-container" data-item-index="${index}">
                             ${renderUserCheckboxesForItem(index)}
                         </div>
                     </div>
@@ -430,12 +461,12 @@
         function renderUserCheckboxesForItem(itemIndex) {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0) {
-                return '<p class="text-xs brutalist-text-dim">Select participants to assign items.</p>';
+                return '<p class="text-xs text-gray-600">Select participants to assign items.</p>';
             }
             return participatingUsers.map(user => `
-                <label class="flex items-center space-x-2 cursor-pointer brutalist-card brutalist-border px-3 py-1 hover:bg-yellow-300 dark:hover:text-black transition-colors">
-                    <input type="checkbox" data-user-id="${user.id}" class="form-checkbox h-4 w-4 bg-transparent text-black dark:text-yellow-300 border-2 border-black rounded-none focus:ring-0 focus:ring-offset-0 dark:border-gray-200" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
-                    <span class="text-sm font-bold">${user.name}</span>
+                <label class="flex items-center space-x-1 cursor-pointer">
+                    <input type="checkbox" data-user-id="${user.id}" class="win98-checkbox" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
+                    <span class="text-sm">${user.name}</span>
                 </label>
             `).join('');
         }
@@ -444,16 +475,16 @@
             if (!originalBillData) return;
             const subtotal = originalBillData.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
             billSummaryEl.innerHTML = `
-                <div class="flex justify-between text-lg font-bold">
-                    <span>SUBTOTAL</span>
+                <div class="flex justify-between">
+                    <span>Subtotal:</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between text-lg font-bold text-red-600 dark:text-red-500">
-                    <span>DISCOUNT</span>
+                <div class="flex justify-between text-red-700">
+                    <span>Discount:</span>
                     <span>- ₹${originalBillData.discount.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between text-2xl font-bold mt-2 pt-2 border-t-2 border-black dark:border-gray-200">
-                    <span>TOTAL</span>
+                <div class="flex justify-between font-bold text-lg mt-1 pt-1 border-t border-gray-500">
+                    <span>Total:</span>
                     <span>₹${originalBillData.total.toFixed(2)}</span>
                 </div>
             `;
@@ -461,11 +492,11 @@
 
         function renderUsers() {
             usersList.innerHTML = users.length > 0 ? users.map(user => `
-                <div class="flex items-center gap-2 bg-gray-300 brutalist-border px-3 py-1 dark:bg-gray-700">
-                    <span class="font-bold">${user.name}</span>
-                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 dark:hover:text-red-500 font-bold">&times;</button>
+                <div class="flex items-center gap-2 bg-gray-300 px-2 py-0.5 border border-gray-400">
+                    <span>${user.name}</span>
+                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-700 font-bold">&times;</button>
                 </div>
-            `).join('') : '<p class="brutalist-text-dim">No users added yet.</p>';
+            `).join('') : '<p class="text-gray-600">No users added yet.</p>';
 
             document.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -478,7 +509,7 @@
         function calculateAndRenderSplit() {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0 || !originalBillData) {
-                splitResults.innerHTML = '<p class="brutalist-text-dim">Select participants and assign items to see the split.</p>';
+                splitResults.innerHTML = '<p class="text-gray-600">Select participants and assign items to see the split.</p>';
                 return;
             }
 
@@ -501,7 +532,7 @@
             const totalSubtotalOfAssignedItems = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
 
             if (totalSubtotalOfAssignedItems === 0) {
-                splitResults.innerHTML = '<p class="brutalist-text-dim">No items have been assigned yet.</p>';
+                splitResults.innerHTML = '<p class="text-gray-600">No items have been assigned yet.</p>';
                 return;
             }
 
@@ -516,36 +547,27 @@
                 const totalOwed = userTotals[user.id] || 0;
                 if (totalOwed <= 0) return '';
                 return `
-                    <div class="flex justify-between items-center bg-yellow-300 p-3 brutalist-border mb-2 text-black">
+                    <div class="flex justify-between items-center bg-yellow-200 p-2 mb-1 border border-yellow-400">
                         <span class="font-bold">${user.name}</span>
-                        <span class="font-bold text-lg">₹${totalOwed.toFixed(2)}</span>
+                        <span class="font-bold">₹${totalOwed.toFixed(2)}</span>
                     </div>
                 `;
             }).join('');
 
             const grandTotalCalculated = Object.values(userTotals).reduce((sum, val) => sum + val, 0);
             splitResults.innerHTML += `
-                <div class="flex justify-between items-center border-t-2 border-black dark:border-gray-200 mt-4 pt-4">
-                    <span class="font-bold text-lg">GRAND TOTAL</span>
-                    <span class="font-bold text-xl">₹${grandTotalCalculated.toFixed(2)}</span>
+                <div class="flex justify-between items-center border-t-2 border-gray-500 mt-2 pt-2">
+                    <span class="font-bold">GRAND TOTAL</span>
+                    <span class="font-bold text-lg">₹${grandTotalCalculated.toFixed(2)}</span>
                 </div>
             `;
         }
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
-            // Theme toggle
             themeToggle.addEventListener('click', toggleTheme);
-
-            // User Modal
-            addUserBtn.addEventListener('click', () => {
-                userModal.classList.remove('hidden');
-                newUserNameInput.focus();
-            });
-            cancelUserBtn.addEventListener('click', () => {
-                userModal.classList.add('hidden');
-                newUserNameInput.value = '';
-            });
+            addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
+            cancelUserBtn.addEventListener('click', () => userModal.classList.add('hidden'));
             saveUserBtn.addEventListener('click', () => {
                 addUser(newUserNameInput.value);
                 userModal.classList.add('hidden');
@@ -554,16 +576,8 @@
             newUserNameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') saveUserBtn.click();
             });
-
-            // Bill Modal
-            loadBillBtn.addEventListener('click', () => {
-                billModal.classList.remove('hidden');
-                billJsonInput.focus();
-            });
-            cancelBillBtn.addEventListener('click', () => {
-                billModal.classList.add('hidden');
-                billJsonInput.value = '';
-            });
+            loadBillBtn.addEventListener('click', () => billModal.classList.remove('hidden'));
+            cancelBillBtn.addEventListener('click', () => billModal.classList.add('hidden'));
             saveBillBtn.addEventListener('click', () => {
                 const jsonString = billJsonInput.value;
                 if (!jsonString) {
@@ -626,7 +640,7 @@
 
         // --- UTILITIES ---
         function showError(message) {
-            errorMessageEl.textContent = "ERROR: " + message.toUpperCase();
+            errorMessageEl.textContent = "Error: " + message;
             errorContainer.classList.remove('hidden');
         }
 
