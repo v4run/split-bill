@@ -161,7 +161,7 @@
                         quantity: item.quantity,
                         price: item.unit_price,
                         originalIndex: index, // Keep track of original position
-                        splitIndividually: true // Default to splitting individually
+                        splitIndividually: false // Default to splitting as a group
                     })),
                     discount: (rawJson.subtotal && rawJson.grand_total) ? (rawJson.subtotal - rawJson.grand_total) : 0,
                     total: rawJson.grand_total || 0
