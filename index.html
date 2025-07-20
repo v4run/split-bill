@@ -5,127 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bill Splitter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Tahoma', 'Verdana', sans-serif;
-            background-color: #008080; /* Classic Teal background */
-            color: #000;
-            font-smooth: never;
-            -webkit-font-smoothing: none;
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f5; /* Zinc 100 */
+            color: #18181b; /* Zinc 900 */
         }
-        .win98-window {
-            background-color: #C0C0C0;
-            border-top: 2px solid #FFFFFF;
-            border-left: 2px solid #FFFFFF;
-            border-right: 2px solid #000000;
-            border-bottom: 2px solid #000000;
-            box-shadow: 1px 1px 0 #000;
+        .minimal-container {
+            background-color: #ffffff;
+            border: 1px solid #d4d4d8; /* Zinc 300 */
+            border-radius: 8px;
         }
-        .win98-title-bar {
-            background: linear-gradient(to right, #000080, #1084d0);
-            color: #FFFFFF;
-            padding: 3px 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            text-shadow: 1px 1px #000;
+        .minimal-header {
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: -0.025em;
         }
-        .win98-title-bar-buttons {
-            display: flex;
+        .minimal-button {
+            border-radius: 6px;
+            background-color: #18181b;
+            color: #ffffff;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            padding: 0.5rem 1rem;
         }
-        .win98-title-bar-button {
-            background-color: #C0C0C0;
-            border-top: 1px solid #FFFFFF;
-            border-left: 1px solid #FFFFFF;
-            border-right: 1px solid #000000;
-            border-bottom: 1px solid #000000;
-            width: 18px;
-            height: 16px;
-            margin-left: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
+        .minimal-button:hover {
+            background-color: #3f3f46; /* Zinc 700 */
         }
-        .win98-button {
-            background-color: #C0C0C0;
-            border-top: 2px solid #FFFFFF;
-            border-left: 2px solid #FFFFFF;
-            border-right: 2px solid #000000;
-            border-bottom: 2px solid #000000;
-            box-shadow: 1px 1px 0 #000;
-            padding: 4px 12px;
+        .minimal-button-secondary {
+            background-color: #e4e4e7; /* Zinc 200 */
+            color: #18181b;
         }
-        .win98-button:active {
-            border-top: 2px solid #000000;
-            border-left: 2px solid #000000;
-            border-right: 2px solid #FFFFFF;
-            border-bottom: 2px solid #FFFFFF;
-            box-shadow: none;
-            transform: translate(1px, 1px);
+         .minimal-button-secondary:hover {
+            background-color: #d4d4d8; /* Zinc 300 */
         }
-        .win98-input, .win98-textarea {
-             border-top: 2px solid #808080;
-             border-left: 2px solid #808080;
-             border-right: 2px solid #FFFFFF;
-             border-bottom: 2px solid #FFFFFF;
-             background-color: #FFFFFF;
-             color: #000;
-             padding: 4px;
+        .minimal-input {
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            background: #ffffff;
         }
-        .win98-input:focus, .win98-textarea:focus {
+        .minimal-input:focus {
             outline: none;
+            border-color: #18181b;
+            box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1);
         }
-        .win98-group-box {
-            border: 1px solid #808080;
-            border-right-color: #FFFFFF;
-            border-bottom-color: #FFFFFF;
-            padding: 1rem;
-            margin: 0.5rem;
-            position: relative;
-        }
-        .win98-group-box > legend {
-            background-color: #C0C0C0;
-            padding: 0 0.5rem;
-            position: absolute;
-            top: -0.7em;
-            left: 0.5rem;
-            font-weight: normal;
-        }
-        .win98-status-bar {
-            border-top: 1px solid #808080;
-            border-bottom: 1px solid #fff;
-            padding: 2px 4px;
-            font-size: 12px;
-        }
-        .win98-status-bar-field {
-            border: 1px solid #808080;
-            border-right-color: #FFFFFF;
-            border-bottom-color: #FFFFFF;
-            padding: 0 4px;
-        }
-        .win98-checkbox {
+        .minimal-checkbox {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
-            background-color: #fff;
-            border-top: 2px solid #808080;
-            border-left: 2px solid #808080;
-            border-right: 2px solid #FFFFFF;
-            border-bottom: 2px solid #FFFFFF;
-            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 1px solid #a1a1aa; /* Zinc 400 */
+            cursor: pointer;
             position: relative;
             vertical-align: middle;
+            transition: all 0.2s ease;
         }
-        .win98-checkbox:checked::after {
+        .minimal-checkbox:checked {
+            background-color: #18181b;
+            border-color: #18181b;
+        }
+        .minimal-checkbox:checked::after {
             content: '✓';
             font-size: 14px;
-            font-weight: bold;
-            color: #000;
+            font-weight: 700;
+            color: #ffffff;
             position: absolute;
             left: 50%;
             top: 50%;
@@ -135,111 +84,115 @@
 </head>
 <body>
 
-    <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl">
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
 
-        <div class="win98-window">
-            <div class="win98-title-bar">
-                <span>C:\Bill_Splitter.exe</span>
-                <div class="win98-title-bar-buttons">
-                    <button id="theme-toggle" class="win98-title-bar-button" title="Toggle Theme">
-                        <span>?</span>
-                    </button>
-                    <div class="win98-title-bar-button">×</div>
-                </div>
+        <header class="text-center mb-12">
+            <h1 class="minimal-header">Bill Splitter</h1>
+        </header>
+
+        <!-- Participants Selection -->
+        <div class="minimal-container p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Participants</h2>
+            <div id="participants-list" class="flex flex-wrap gap-4">
+                <!-- Participant checkboxes will be dynamically inserted here -->
             </div>
-            <div class="p-4">
-                <!-- Participants Selection -->
-                <fieldset class="win98-group-box mb-4">
-                    <legend class="px-2">Participants</legend>
-                    <div id="participants-list" class="flex flex-wrap gap-4 p-2">
-                        <!-- Participant checkboxes will be dynamically inserted here -->
-                    </div>
-                </fieldset>
+        </div>
 
-                <!-- Error Message Display -->
-                <div id="error-container" class="hidden bg-red-500 text-white font-bold p-2 mb-4 border-2 border-red-700" role="alert">
-                    <span id="error-message"></span>
+        <!-- Error Message Display -->
+        <div id="error-container" class="hidden bg-red-100 border border-red-300 text-red-800 font-medium p-4 my-4 rounded-lg" role="alert">
+            <span id="error-message"></span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Left Column: Bill & Users -->
+            <div class="md:col-span-2 space-y-8">
+                <!-- Bill Items -->
+                <div class="minimal-container p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Bill Details</h2>
+                        <div class="flex space-x-2">
+                            <button id="history-btn" class="minimal-button minimal-button-secondary">
+                                <span>History</span>
+                            </button>
+                            <button id="load-bill-btn" class="minimal-button">
+                                <span>Load Bill</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="bill-items-list" class="space-y-4">
+                        <!-- Items will be dynamically inserted here -->
+                    </div>
+                    <div id="bill-summary" class="mt-6 pt-6 border-t border-gray-200">
+                         <!-- Summary will be dynamically inserted here -->
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Left Column: Bill & Users -->
-                    <div class="md:col-span-2 space-y-4">
-                        <!-- Bill Items -->
-                        <fieldset class="win98-group-box">
-                             <legend class="px-2">Bill Details</legend>
-                            <div class="flex justify-end mb-2">
-                                <button id="load-bill-btn" class="win98-button">
-                                    Load Bill...
-                                </button>
-                            </div>
-                            <div id="bill-items-list" class="space-y-2 p-2 bg-white win98-input h-64 overflow-y-auto">
-                                <!-- Items will be dynamically inserted here -->
-                            </div>
-                            <div id="bill-summary" class="mt-4 pt-2 border-t-2 border-gray-500">
-                                 <!-- Summary will be dynamically inserted here -->
-                            </div>
-                        </fieldset>
-
-                         <!-- Users Section -->
-                        <fieldset class="win98-group-box">
-                             <legend class="px-2">Manage Users</legend>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm">Add or remove users from the list.</span>
-                                <button id="add-user-btn" class="win98-button">
-                                    Add
-                                </button>
-                            </div>
-                            <div id="users-list" class="flex flex-wrap gap-2 p-2 border-2 inset-white bg-white win98-input">
-                                <!-- Users will be dynamically inserted here -->
-                            </div>
-                        </fieldset>
+                 <!-- Users Section -->
+                <div class="minimal-container p-6">
+                     <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Manage Users</h2>
+                        <button id="add-user-btn" class="minimal-button">
+                            <span>Add User</span>
+                        </button>
                     </div>
-
-                    <!-- Right Column: Final Split -->
-                    <div class="md:col-span-1">
-                        <fieldset id="split-container" class="win98-group-box h-full">
-                            <legend class="px-2">Final Split</legend>
-                            <div id="split-results" class="space-y-2 p-2">
-                                <p class="text-gray-600">Assign items to see the split.</p>
-                                <!-- Split details will be dynamically inserted here -->
-                            </div>
-                        </fieldset>
+                    <div id="users-list" class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <!-- Users will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
-            <div class="win98-status-bar flex justify-between">
-                <div class="win98-status-bar-field">Ready</div>
-                <div class="win98-status-bar-field">NUM</div>
+
+            <!-- Right Column: Final Split -->
+            <div class="md:col-span-1">
+                <div class="minimal-container p-6 h-full sticky top-8">
+                    <h2 class="text-xl font-bold mb-4 pb-2 border-b border-gray-200 text-gray-800">Final Split</h2>
+                    <div id="split-results" class="space-y-3">
+                        <p class="text-gray-500">Assign items to see the split.</p>
+                        <!-- Split details will be dynamically inserted here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Add User Modal -->
-    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center p-4 hidden">
-        <div class="win98-window w-full max-w-sm">
-             <div class="win98-title-bar"><span>Add New User</span></div>
-             <div class="p-4 text-center">
-                <label for="new-user-name" class="block mb-2">User Name:</label>
-                <input type="text" id="new-user-name" class="w-full win98-input" placeholder="e.g., John Doe">
-                <div class="mt-6 flex justify-center space-x-3">
-                    <button id="save-user-btn" class="win98-button w-24">OK</button>
-                    <button id="cancel-user-btn" class="win98-button w-24">Cancel</button>
+    <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 hidden">
+        <div class="minimal-container w-full max-w-sm p-8">
+             <h3 class="minimal-header text-2xl text-center mb-6">Add New User</h3>
+             <div class="p-6 text-center">
+                <label for="new-user-name" class="block mb-2 font-bold text-gray-700">User Name:</label>
+                <input type="text" id="new-user-name" class="w-full minimal-input" placeholder="Enter name...">
+                <div class="mt-8 flex justify-center space-x-4">
+                    <button id="save-user-btn" class="minimal-button w-28 py-2"><span>SAVE</span></button>
+                    <button id="cancel-user-btn" class="minimal-button minimal-button-secondary w-28 py-2"><span>Cancel</span></button>
                 </div>
              </div>
         </div>
     </div>
 
     <!-- Load Bill Modal -->
-    <div id="bill-modal" class="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center p-4 hidden">
-        <div class="win98-window w-full max-w-lg">
-            <div class="win98-title-bar"><span>Load Bill from JSON</span></div>
-            <div class="p-4">
-                <p class="mb-2">Paste the contents of your JSON file below:</p>
-                <textarea id="bill-json-input" class="w-full h-64 win98-textarea" placeholder='{ "items": [ ... ] }'></textarea>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button id="save-bill-btn" class="win98-button w-24">OK</button>
-                    <button id="cancel-bill-btn" class="win98-button w-24">Cancel</button>
+    <div id="bill-modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 hidden">
+        <div class="minimal-container w-full max-w-lg p-8">
+            <h3 class="minimal-header text-2xl text-center mb-6">Load Bill from JSON</h3>
+            <div class="p-6">
+                <p class="mb-2 font-bold text-gray-700">Paste JSON below:</p>
+                <textarea id="bill-json-input" class="w-full h-64 minimal-input" placeholder='{ "items": [ ... ] }'></textarea>
+                <div class="mt-8 flex justify-end space-x-4">
+                    <button id="save-bill-btn" class="minimal-button w-28 py-2"><span>LOAD</span></button>
+                    <button id="cancel-bill-btn" class="minimal-button minimal-button-secondary w-28 py-2"><span>Cancel</span></button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 hidden">
+        <div class="minimal-container w-full max-w-lg p-8">
+            <h3 class="minimal-header text-2xl text-center mb-6">Bill History</h3>
+            <div id="history-list" class="w-full h-80 overflow-y-auto minimal-input p-2 space-y-2">
+                <!-- History items will be dynamically inserted here -->
+            </div>
+            <div class="mt-8 flex justify-end space-x-4">
+                <button id="close-history-btn" class="minimal-button minimal-button-secondary w-28 py-2"><span>Close</span></button>
             </div>
         </div>
     </div>
@@ -250,6 +203,7 @@
         let originalBillData = null;
         let flatBillItems = [];
         let users = [];
+        let billHistory = [];
         let participatingUserIds = [];
         let itemAssignments = {};
 
@@ -271,12 +225,16 @@
         const billJsonInput = document.getElementById('bill-json-input');
         const saveBillBtn = document.getElementById('save-bill-btn');
         const cancelBillBtn = document.getElementById('cancel-bill-btn');
-        const themeToggle = document.getElementById('theme-toggle');
+        const historyBtn = document.getElementById('history-btn');
+        const historyModal = document.getElementById('history-modal');
+        const historyList = document.getElementById('history-list');
+        const closeHistoryBtn = document.getElementById('close-history-btn');
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             initializeBill();
             loadUsersFromStorage();
+            loadHistoryFromStorage();
             renderAll();
             setupEventListeners();
         });
@@ -371,6 +329,25 @@
             renderAll();
         }
 
+        function loadHistoryFromStorage() {
+            const storedHistory = localStorage.getItem('billSplitterHistory');
+            if(storedHistory) {
+                billHistory = JSON.parse(storedHistory);
+            }
+        }
+
+        function saveBillToHistory(rawJson) {
+            const newEntry = {
+                date: new Date().toISOString(),
+                billData: rawJson
+            };
+            billHistory.unshift(newEntry); // Add to the beginning
+            if (billHistory.length > 20) { // Keep only the last 20 bills
+                billHistory.pop();
+            }
+            localStorage.setItem('billSplitterHistory', JSON.stringify(billHistory));
+        }
+
         // --- RENDERING ---
         function renderAll() {
             if (!originalBillData) return;
@@ -383,14 +360,14 @@
 
         function renderParticipants() {
             if (users.length === 0) {
-                participantsList.innerHTML = '<p class="text-gray-600">Add users to select them as participants.</p>';
+                participantsList.innerHTML = '<p class="text-gray-500">Add users to select them as participants.</p>';
                 return;
             }
 
-            participantsList.innerHTML = users.map(user => `
-                <label class="flex items-center space-x-2 cursor-pointer p-1">
-                    <input type="checkbox" data-user-id="${user.id}" class="win98-checkbox participant-checkbox" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
-                    <span>${user.name}</span>
+            participantsList.innerHTML = users.map((user, i) => `
+                <label class="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-100">
+                    <input type="checkbox" data-user-id="${user.id}" class="minimal-checkbox participant-checkbox" ${participatingUserIds.includes(user.id) ? 'checked' : ''}>
+                    <span class="font-medium">${user.name}</span>
                 </label>
             `).join('');
 
@@ -400,50 +377,95 @@
         }
 
         function renderBillItems() {
-            if (flatBillItems.length === 0) {
-                billItemsList.innerHTML = '<p class="text-gray-600 p-2">No bill loaded. Click "Load Bill..." to begin.</p>';
+            if (originalBillData.items.length === 0) {
+                billItemsList.innerHTML = '<p class="text-gray-500">No bill loaded. Click "Load Bill" to begin.</p>';
                 return;
             }
 
-            billItemsList.innerHTML = flatBillItems.map((item, index) => {
-                const originalItem = originalBillData.items[item.originalIndex];
-                let displayName;
-                let displayPrice;
-                let toggleHTML = '';
-
-                if (item.originalQuantity > 1 && item.quantityIndex === 1) {
-                    toggleHTML = `
-                        <div class="flex items-center space-x-2 mt-2">
-                            <input type="checkbox" id="toggle-${item.originalIndex}" data-original-index="${item.originalIndex}" class="win98-checkbox item-split-toggle" ${originalItem.splitIndividually ? 'checked' : ''}>
-                            <label for="toggle-${item.originalIndex}" class="text-xs">Split Individually</label>
+            let flatItemIndex = 0;
+            billItemsList.innerHTML = originalBillData.items.map(originalItem => {
+                if (originalItem.splitIndividually && originalItem.quantity > 1) {
+                    // Render a group container for individually split items
+                    const groupHeaderToggle = `
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-${originalItem.originalIndex}" data-original-index="${originalItem.originalIndex}" class="sr-only peer item-split-toggle" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                                <span class="ml-3 text-xs font-medium uppercase">Split Individually</span>
+                            </label>
                         </div>
                     `;
-                }
 
-                if (originalItem.splitIndividually && item.originalQuantity > 1) {
-                    displayName = `${item.name} (${item.quantityIndex} of ${item.originalQuantity})`;
-                    displayPrice = `1 x ₹${item.price.toFixed(2)} = ₹${item.price.toFixed(2)}`;
+                    const individualItemsHTML = Array.from({ length: originalItem.quantity }, (_, i) => {
+                        const displayName = `${originalItem.name} (${i + 1} of ${originalItem.quantity})`;
+                        const displayPrice = `1 x ₹${originalItem.price.toFixed(2)} = ₹${originalItem.price.toFixed(2)}`;
+                        const currentIndex = flatItemIndex + i;
+                        return `
+                            <div class="p-3 rounded-md bg-white border border-gray-200">
+                                <p class="font-bold">${displayName}</p>
+                                <p class="text-sm text-gray-500">${displayPrice}</p>
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <div class="flex flex-wrap gap-x-4 gap-y-2 user-checkbox-container" data-item-index="${currentIndex}">
+                                        ${renderUserCheckboxesForItem(currentIndex)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    flatItemIndex += originalItem.quantity;
+
+                    return `
+                        <div class="p-4 rounded-lg bg-gray-100 border border-gray-300 space-y-3">
+                            <div class="flex justify-between items-start pb-2 border-b border-gray-300">
+                                <div>
+                                    <p class="font-bold text-lg">${originalItem.name}</p>
+                                    <p class="text-sm text-gray-500">Total Quantity: ${originalItem.quantity}</p>
+                                </div>
+                                ${groupHeaderToggle}
+                            </div>
+                            ${individualItemsHTML}
+                        </div>
+                    `;
                 } else {
-                    displayName = item.name;
-                    displayPrice = `${item.quantity} x ₹${item.price.toFixed(2)} = ₹${(item.quantity * item.price).toFixed(2)}`;
-                }
+                    // Render a single item (either quantity is 1 or not split individually)
+                    const item = flatBillItems[flatItemIndex];
+                    let toggleHTML = '';
+                    if (item.originalQuantity > 1) {
+                         toggleHTML = `
+                            <div class="flex items-center space-x-2 mt-3">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-${item.originalIndex}" data-original-index="${item.originalIndex}" class="sr-only peer item-split-toggle">
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                                    <span class="ml-3 text-xs font-medium uppercase">Split Individually</span>
+                                </label>
+                            </div>
+                        `;
+                    }
 
-                return `
-                <div class="p-2 border-b border-gray-400">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="font-bold">${displayName}</p>
-                            <p class="text-sm text-gray-700">${displayPrice}</p>
+                    const displayName = item.name;
+                    const displayPrice = `${item.quantity} x ₹${item.price.toFixed(2)} = ₹${(item.quantity * item.price).toFixed(2)}`;
+                    const currentIndex = flatItemIndex;
+                    flatItemIndex++;
+
+                    return `
+                    <div class="p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-lg">${displayName}</p>
+                                <p class="text-sm text-gray-500">${displayPrice}</p>
+                            </div>
+                            ${toggleHTML}
                         </div>
-                        ${toggleHTML}
-                    </div>
-                    <div class="mt-2 pt-2">
-                        <div class="flex flex-wrap gap-x-4 gap-y-1 user-checkbox-container" data-item-index="${index}">
-                            ${renderUserCheckboxesForItem(index)}
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex flex-wrap gap-x-4 gap-y-2 user-checkbox-container" data-item-index="${currentIndex}">
+                                ${renderUserCheckboxesForItem(currentIndex)}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `}).join('');
+                    `;
+                }
+            }).join('');
 
             document.querySelectorAll('.user-checkbox-container input[type="checkbox"]').forEach(checkbox => {
                 checkbox.addEventListener('change', handleAssignmentChange);
@@ -456,12 +478,12 @@
         function renderUserCheckboxesForItem(itemIndex) {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0) {
-                return '<p class="text-xs text-gray-600">Select participants to assign items.</p>';
+                return '<p class="text-xs text-gray-500">Select participants to assign items.</p>';
             }
             return participatingUsers.map(user => `
-                <label class="flex items-center space-x-1 cursor-pointer">
-                    <input type="checkbox" data-user-id="${user.id}" class="win98-checkbox" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
-                    <span class="text-sm">${user.name}</span>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                    <input type="checkbox" data-user-id="${user.id}" class="minimal-checkbox" ${itemAssignments[itemIndex]?.includes(user.id) ? 'checked' : ''}>
+                    <span class="text-sm font-medium">${user.name}</span>
                 </label>
             `).join('');
         }
@@ -470,16 +492,16 @@
             if (!originalBillData) return;
             const subtotal = originalBillData.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
             billSummaryEl.innerHTML = `
-                <div class="flex justify-between">
-                    <span>Subtotal:</span>
+                <div class="flex justify-between font-medium">
+                    <span>Subtotal</span>
                     <span>₹${subtotal.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between text-red-700">
-                    <span>Discount:</span>
+                <div class="flex justify-between font-medium text-red-600">
+                    <span>Discount</span>
                     <span>- ₹${originalBillData.discount.toFixed(2)}</span>
                 </div>
-                <div class="flex justify-between font-bold text-lg mt-1 pt-1 border-t border-gray-500">
-                    <span>Total:</span>
+                <div class="flex justify-between font-bold text-xl mt-2 pt-2 border-t-2 border-dashed border-gray-200">
+                    <span>Total</span>
                     <span>₹${originalBillData.total.toFixed(2)}</span>
                 </div>
             `;
@@ -487,11 +509,11 @@
 
         function renderUsers() {
             usersList.innerHTML = users.length > 0 ? users.map(user => `
-                <div class="flex items-center gap-2 bg-gray-300 px-2 py-0.5 border border-gray-400">
-                    <span>${user.name}</span>
-                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-700 font-bold">&times;</button>
+                <div class="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-gray-300">
+                    <span class="font-medium">${user.name}</span>
+                    <button data-user-id="${user.id}" class="delete-user-btn hover:text-red-600 font-bold">&times;</button>
                 </div>
-            `).join('') : '<p class="text-gray-600">No users added yet.</p>';
+            `).join('') : '<p class="text-gray-500">No users added yet.</p>';
 
             document.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -501,10 +523,44 @@
             });
         }
 
+        function renderHistory() {
+            if (billHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-500 p-4 text-center">No saved bills found.</p>';
+                return;
+            }
+            historyList.innerHTML = billHistory.map((entry, index) => {
+                const date = new Date(entry.date);
+                const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                const total = entry.billData.grand_total || 0;
+                return `
+                    <div class="flex justify-between items-center p-2 rounded-lg hover:bg-gray-100">
+                        <div>
+                            <p class="font-bold">Bill from ${formattedDate}</p>
+                            <p class="text-sm text-gray-600">Total: ₹${total.toFixed(2)}</p>
+                        </div>
+                        <button data-history-index="${index}" class="load-history-btn minimal-button minimal-button-secondary px-4 py-1">Load</button>
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.load-history-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.dataset.historyIndex;
+                    const selectedBill = billHistory[index];
+                    if (selectedBill) {
+                        lastLoadedRawJson = selectedBill.billData;
+                        processRawBill(lastLoadedRawJson);
+                        renderAll();
+                        historyModal.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
         function calculateAndRenderSplit() {
             const participatingUsers = users.filter(u => participatingUserIds.includes(u.id));
             if (participatingUsers.length === 0 || !originalBillData) {
-                splitResults.innerHTML = '<p class="text-gray-600">Select participants and assign items to see the split.</p>';
+                splitResults.innerHTML = '<p class="text-gray-500">Select participants and assign items to see the split.</p>';
                 return;
             }
 
@@ -527,7 +583,7 @@
             const totalSubtotalOfAssignedItems = Object.values(userSubtotals).reduce((acc, val) => acc + val, 0);
 
             if (totalSubtotalOfAssignedItems === 0) {
-                splitResults.innerHTML = '<p class="text-gray-600">No items have been assigned yet.</p>';
+                splitResults.innerHTML = '<p class="text-gray-500">No items have been assigned yet.</p>';
                 return;
             }
 
@@ -542,25 +598,24 @@
                 const totalOwed = userTotals[user.id] || 0;
                 if (totalOwed <= 0) return '';
                 return `
-                    <div class="flex justify-between items-center bg-yellow-200 p-2 mb-1 border border-yellow-400">
+                    <div class="flex justify-between items-center bg-green-100 p-3 rounded-lg mb-2 text-green-900">
                         <span class="font-bold">${user.name}</span>
-                        <span class="font-bold">₹${totalOwed.toFixed(2)}</span>
+                        <span class="font-bold text-lg">₹${totalOwed.toFixed(2)}</span>
                     </div>
                 `;
             }).join('');
 
             const grandTotalCalculated = Object.values(userTotals).reduce((sum, val) => sum + val, 0);
             splitResults.innerHTML += `
-                <div class="flex justify-between items-center border-t-2 border-gray-500 mt-2 pt-2">
-                    <span class="font-bold">GRAND TOTAL</span>
-                    <span class="font-bold text-lg">₹${grandTotalCalculated.toFixed(2)}</span>
+                <div class="flex justify-between items-center border-t-2 border-dashed border-gray-200 mt-4 pt-4">
+                    <span class="font-bold text-lg">Grand Total</span>
+                    <span class="font-bold text-xl">₹${grandTotalCalculated.toFixed(2)}</span>
                 </div>
             `;
         }
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
-            themeToggle.addEventListener('click', () => alert("Theme toggling is not a standard feature of Windows 98!"));
             addUserBtn.addEventListener('click', () => userModal.classList.remove('hidden'));
             cancelUserBtn.addEventListener('click', () => userModal.classList.add('hidden'));
             saveUserBtn.addEventListener('click', () => {
@@ -580,8 +635,10 @@
                     return;
                 }
                 try {
-                    lastLoadedRawJson = JSON.parse(jsonString);
-                    processRawBill(lastLoadedRawJson);
+                    const rawJson = JSON.parse(jsonString);
+                    lastLoadedRawJson = rawJson;
+                    saveBillToHistory(rawJson);
+                    processRawBill(rawJson);
                     renderAll();
                     billModal.classList.add('hidden');
                     billJsonInput.value = '';
@@ -591,6 +648,12 @@
                     console.error("JSON Parse Error:", error);
                 }
             });
+
+            historyBtn.addEventListener('click', () => {
+                renderHistory();
+                historyModal.classList.remove('hidden');
+            });
+            closeHistoryBtn.addEventListener('click', () => historyModal.classList.add('hidden'));
         }
 
         function handleItemSplitToggle(e) {
