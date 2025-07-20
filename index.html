@@ -38,7 +38,12 @@
             <div class="md:col-span-2 space-y-6">
                 <!-- Bill Items -->
                 <div id="bill-container" class="bg-white p-6 rounded-2xl shadow-md animate-fade-in">
-                    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Bill Details</h2>
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 class="text-2xl font-semibold">Bill Details</h2>
+                        <button id="load-bill-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                            Load Bill
+                        </button>
+                    </div>
                     <div id="bill-items-list" class="space-y-4">
                         <!-- Items will be dynamically inserted here -->
                     </div>
@@ -86,9 +91,21 @@
         </div>
     </div>
 
+    <!-- Load Bill Modal -->
+    <div id="bill-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg animate-fade-in">
+            <h3 class="text-2xl font-semibold mb-4">Paste Bill JSON</h3>
+            <textarea id="bill-json-input" class="w-full h-64 border-gray-300 rounded-lg p-3 text-sm font-mono focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder='Paste your bill JSON here...'></textarea>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-bill-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
+                <button id="save-bill-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Load Bill</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // --- STATE ---
-        let originalBillData = null; // The raw bill data from URL
+        let originalBillData = null; // The raw bill data from URL, transformed to a consistent internal format
         let flatBillItems = []; // An "exploded" list of items where each item has quantity 1
         let users = [];
         let itemAssignments = {}; // { flatItemIndex: [userId1, userId2], ... }
@@ -105,27 +122,39 @@
         const newUserNameInput = document.getElementById('new-user-name');
         const saveUserBtn = document.getElementById('save-user-btn');
         const cancelUserBtn = document.getElementById('cancel-user-btn');
+        const loadBillBtn = document.getElementById('load-bill-btn');
+        const billModal = document.getElementById('bill-modal');
+        const billJsonInput = document.getElementById('bill-json-input');
+        const saveBillBtn = document.getElementById('save-bill-btn');
+        const cancelBillBtn = document.getElementById('cancel-bill-btn');
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            getBillFromUrl();
+            initializeBill();
             loadUsersFromStorage();
             renderAll();
             setupEventListeners();
         });
 
         // --- DATA HANDLING ---
-        function getBillFromUrl() {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const billParam = urlParams.get('bill');
+        function initializeBill() {
+            // Start with a default empty bill
+            const defaultBill = { items: [], subtotal: 0, grand_total: 0 };
+            processRawBill(defaultBill);
+        }
 
-                if (!billParam) {
-                    originalBillData = { items: [], discount: 0, total: 0 };
-                } else {
-                    const decodedJson = atob(billParam);
-                    originalBillData = JSON.parse(decodedJson);
-                }
+        function processRawBill(rawJson) {
+            try {
+                 // Transform the raw JSON into the app's internal format
+                originalBillData = {
+                    items: rawJson.items.map(item => ({
+                        name: item.item_name,
+                        quantity: item.quantity,
+                        price: item.unit_price
+                    })),
+                    discount: (rawJson.subtotal && rawJson.grand_total) ? (rawJson.subtotal - rawJson.grand_total) : 0,
+                    total: rawJson.grand_total || 0
+                };
 
                 // Explode items with quantity > 1 into individual items
                 flatBillItems = [];
@@ -141,13 +170,13 @@
                 });
 
                 // Initialize assignments for each flat item
+                itemAssignments = {};
                 flatBillItems.forEach((_, index) => {
                     itemAssignments[index] = [];
                 });
-
             } catch (error) {
-                console.error("Failed to parse bill data:", error);
-                showError("Invalid bill data in URL. Make sure it's a valid Base64 encoded JSON.");
+                console.error("Failed to process bill data:", error);
+                showError("Could not process the provided bill data. Check the format.");
                 originalBillData = { items: [], discount: 0, total: 0 }; // Fallback to empty bill on error
                 flatBillItems = [];
             }
@@ -199,7 +228,7 @@
 
         function renderBillItems() {
             if (flatBillItems.length === 0) {
-                billItemsList.innerHTML = '<p class="text-gray-500">No items in this bill. You can load a bill via a URL parameter.</p>';
+                billItemsList.innerHTML = '<p class="text-gray-500">No bill loaded. Click "Load Bill" to paste your bill data.</p>';
                 return;
             }
 
@@ -334,25 +363,49 @@
 
         // --- EVENT HANDLING ---
         function setupEventListeners() {
+            // User Modal
             addUserBtn.addEventListener('click', () => {
                 userModal.classList.remove('hidden');
                 newUserNameInput.focus();
             });
-
             cancelUserBtn.addEventListener('click', () => {
                 userModal.classList.add('hidden');
                 newUserNameInput.value = '';
             });
-
             saveUserBtn.addEventListener('click', () => {
                 addUser(newUserNameInput.value);
                 userModal.classList.add('hidden');
                 newUserNameInput.value = '';
             });
-
             newUserNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    saveUserBtn.click();
+                if (e.key === 'Enter') saveUserBtn.click();
+            });
+
+            // Bill Modal
+            loadBillBtn.addEventListener('click', () => {
+                billModal.classList.remove('hidden');
+                billJsonInput.focus();
+            });
+            cancelBillBtn.addEventListener('click', () => {
+                billModal.classList.add('hidden');
+                billJsonInput.value = '';
+            });
+            saveBillBtn.addEventListener('click', () => {
+                const jsonString = billJsonInput.value;
+                if (!jsonString) {
+                    showError("Text area is empty. Please paste the bill JSON.");
+                    return;
+                }
+                try {
+                    const rawJson = JSON.parse(jsonString);
+                    processRawBill(rawJson);
+                    renderAll();
+                    billModal.classList.add('hidden');
+                    billJsonInput.value = '';
+                    errorContainer.classList.add('hidden'); // Hide previous errors
+                } catch (error) {
+                    showError("Invalid JSON format. Please check the pasted data.");
+                    console.error("JSON Parse Error:", error);
                 }
             });
         }
